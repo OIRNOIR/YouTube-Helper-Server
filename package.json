@@ -6,7 +6,7 @@
 	"main": "index.ts",
 	"scripts": {
 		"test": "echo \"Error: no test specified\" && exit 1",
-		"lint": "biome check ../.. --write",
+		"lint": "biome check . --write",
 		"typecheck": "bunx tsc --noEmit",
 		"db:generate": "prisma generate --no-hints",
 		"db:migrate": "prisma migrate dev",
