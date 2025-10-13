@@ -1,0 +1,45 @@
+name: Style
+
+permissions: write-all
+
+on:
+    push:
+        branches: ["master"]
+    pull_request:
+        types: [opened, synchronize]
+    merge_group:
+
+jobs:
+    ci:
+        name: Check - (${{ matrix.cmds }})
+        timeout-minutes: 15
+        runs-on: ubuntu-latest
+        strategy:
+            matrix:
+                cmds: ["bun style:check"]
+        steps:
+          - uses: oven-sh/setup-bun@v2
+
+          - name: Check out code
+            uses: actions/checkout@v5
+            with:
+                submodules: true
+
+          - name: Cache dependencies
+            uses: actions/cache@v4
+            with:
+                path: |
+                    ~/.bun/install/cache
+                    node_modules
+                key: ${{ runner.os }}-bun-${{ hashFiles('**/bun.lock') }}
+                restore-keys: |
+                    ${{ runner.os }}-bun-
+
+          - name: Install dependencies
+            run: bun install
+            shell: bash
+
+          - name: Run Check
+            run: ${{ matrix.cmds }}
+            env:
+                CI: 1
