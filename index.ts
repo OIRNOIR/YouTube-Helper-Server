@@ -27,7 +27,10 @@ let currentlyFetching = false;
 
 let subscriptions: string[] = [];
 let shortsWhitelist: string[] = JSON.parse(
-	fs.readFileSync(path.join(__dirname, "config", "shorts-whitelist.json"), "utf-8")
+	fs.readFileSync(
+		path.join(__dirname, "config", "shorts-whitelist.json"),
+		"utf-8"
+	)
 ) as string[];
 
 async function updateFeeds(): Promise<void> {
@@ -39,10 +42,16 @@ async function updateFeeds(): Promise<void> {
 		}
 		currentlyFetching = true;
 		subscriptions = JSON.parse(
-			fs.readFileSync(path.join(__dirname, "config", "subscriptions.json"), "utf-8")
+			fs.readFileSync(
+				path.join(__dirname, "config", "subscriptions.json"),
+				"utf-8"
+			)
 		) as string[];
 		shortsWhitelist = JSON.parse(
-			fs.readFileSync(path.join(__dirname, "config", "shorts-whitelist.json"), "utf-8")
+			fs.readFileSync(
+				path.join(__dirname, "config", "shorts-whitelist.json"),
+				"utf-8"
+			)
 		) as string[];
 		console.log("Updating yt-dlp");
 		const updateOut = await execAsync("yt-dlp -U");
