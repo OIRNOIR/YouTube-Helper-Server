@@ -64,3 +64,7 @@ Once you have configured this, you should configure a supported client.
 
 Currently, the only supported client is:
 - [YouTube Helper Client](https://github.com/OIRNOIR/YouTube-Helper-Client)
+
+## Contributing
+
+Feel free to leave issues or pull requests. AI-generated contributions will not be accepted.
