@@ -7,6 +7,7 @@ export type ConfigFile = {
 	infoWebhook: string;
 	expectedServerAuthorization: string;
 	errorPingUser: string;
+	port: number;
 };
 
 export const VIDEOS_PER_CHANNEL_SCRAPE_LIMIT = 10;

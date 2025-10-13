@@ -146,7 +146,7 @@ process.on("unhandledRejection", async (err) => {
 
 process.on("message", async (message) => {
 	if (message == "shutdown") {
-		console.log("Shutdown: pm2");
+		console.log("Shutdown: signal");
 		await prisma.$disconnect();
 		if (server != undefined) {
 			server.stop(true);

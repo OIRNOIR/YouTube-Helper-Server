@@ -35,7 +35,7 @@ export class ContentServer {
 		//this.models = models;
 		//this.config = config;
 		this.server = Bun.serve({
-			port: 16341,
+			port: config.port,
 			development: false,
 			routes: {
 				"/api/feed": async (req: BunRequest<"/api/feed">) => {
