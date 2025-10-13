@@ -1,0 +1,26 @@
+{
+	"name": "youtube-helper",
+	"version": "1.0.0",
+	"description": "Fetching YouTube",
+	"type": "module",
+	"main": "index.ts",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1",
+		"lint": "biome check ../.. --write",
+		"typecheck": "bunx tsc --noEmit",
+		"db:generate": "prisma generate --no-hints",
+		"db:migrate": "prisma migrate dev",
+		"db:deploy": "prisma migrate deploy"
+	},
+	"dependencies": {
+		"@oirnoir/util": "0.0.15",
+		"@prisma/client": "6.17.1",
+		"discord.js": "14.23.2",
+		"dotenv": "17.2.3",
+		"fuse.js": "7.1.0",
+		"prisma": "6.17.1"
+	},
+	"engines": {
+		"bun": ">=1.2.6"
+	}
+}

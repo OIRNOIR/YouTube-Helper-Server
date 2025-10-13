@@ -1,0 +1,6 @@
+{
+	"errorWebhook": "DISCORD_WEBHOOK_FOR_ERRORS",
+	"infoWebhook": "DISCORD_WEBHOOK_FOR_INFO_LOGS",
+	"expectedServerAuthorization": "INSERT_AUTHORIZATION_TOKEN_HERE",
+	"errorPingUser": "INSERT_YOUR_DISCORD_USER_ID_HERE"
+}

@@ -1,0 +1,31 @@
+enum Platform {
+	YouTube
+}
+
+enum VideoType {
+	video
+	short
+	stream
+}
+
+enum SponsorBlockStatus {
+	sponsor
+	selfpromo
+	exclusive_access
+}
+
+model Video {
+	videoId String @id @unique
+	platform Platform
+	type VideoType
+	title String
+	description String?
+	duration Int?
+	displayName String
+	username String
+	channelId String
+	date DateTime
+	isCurrentlyLive Boolean
+	unread Boolean @default(true)
+	sponsorBlockStatus SponsorBlockStatus?
+}

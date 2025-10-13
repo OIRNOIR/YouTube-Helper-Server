@@ -1,0 +1,2 @@
+# When you copy the config directory, make a copy of me
+# and replace my contents with a cookies.txt file from youtube.com.
