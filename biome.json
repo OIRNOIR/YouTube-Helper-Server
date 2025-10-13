@@ -1,5 +1,4 @@
 {
-	"root": false,
 	"$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
 	"assist": {
 		"actions": {
@@ -49,12 +48,6 @@
 		"indentWidth": 1
 	},
 	"files": {
-		"includes": [
-			"**",
-			"!**/bots/wayback_slowgame/output",
-			"!**/bots/wayback_slowgame/status.json",
-			"!**/bots/notification_bot/seenLinks.json",
-			"!**/prisma/generated"
-		]
+		"includes": ["**", "!**/prisma/generated"]
 	}
 }
