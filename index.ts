@@ -15,7 +15,9 @@ import { Channels } from "./structures/Channels.ts";
 import { ContentServer } from "./structures/ContentServer.ts";
 import { execAsync, shuffle } from "./util.ts";
 
-envConfig({ quiet: true });
+const __dirname = path.dirname(new URL(import.meta.url).pathname);
+
+envConfig({ quiet: true, path: path.join(__dirname, ".env") });
 
 console.log(process.env);
 
@@ -26,8 +28,6 @@ const prismaAdapter = new PrismaPg({
 const prisma = new PrismaClient({
 	adapter: prismaAdapter
 });
-
-const __dirname = path.dirname(new URL(import.meta.url).pathname);
 
 const configFile: ConfigFile = JSON.parse(
 	fs.readFileSync(path.join(__dirname, "config", "config.json"), "utf8")
