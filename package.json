@@ -24,6 +24,7 @@
 	},
 	"dependencies": {
 		"@oirnoir/util": "0.0.19",
+		"@prisma/adapter-pg": "7.0.0",
 		"@prisma/client": "7.0.0",
 		"@types/bun": "1.3.2",
 		"discord.js": "14.25.0",

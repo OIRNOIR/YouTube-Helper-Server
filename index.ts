@@ -3,7 +3,8 @@ import path from "node:path";
 /* cspell: disable-next-line */
 import { msToShort, splitMessage } from "@oirnoir/util";
 import { type ConfigFile, TMP_DIR } from "./constants.ts";
-import { PrismaClient } from "./prisma/generated/prisma";
+import { PrismaClient } from "./prisma/generated/prisma/client";
+import { PrismaPg } from '@prisma/adapter-pg';
 import {
 	checkSponsorBlock,
 	purgeUnsubscribed,
@@ -12,8 +13,16 @@ import {
 import { Channels } from "./structures/Channels.ts";
 import { ContentServer } from "./structures/ContentServer.ts";
 import { execAsync, shuffle } from "./util.ts";
+import "dotenv/config";
+import {env} from "prisma/config";
 
-const prisma = new PrismaClient();
+const prismaAdapter = new PrismaPg({
+  connectionString: env("DATABASE_URL"),
+});
+
+const prisma = new PrismaClient({
+	adapter: prismaAdapter
+});
 
 const __dirname = path.dirname(new URL(import.meta.url).pathname);
 
