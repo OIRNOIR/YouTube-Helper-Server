@@ -19,6 +19,6 @@ export default defineConfig({
 		path: path.join("prisma", "queries")
 	},
 	datasource: {
-		url: env("DATABASE_URL") ?? getDummyConfig()
+		url: env("DATABASE_URL")// ?? getDummyConfig()
 	}
 });
