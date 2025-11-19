@@ -17,6 +17,8 @@ import { execAsync, shuffle } from "./util.ts";
 
 envConfig({ quiet: true });
 
+console.log(process.env);
+
 const prismaAdapter = new PrismaPg({
 	connectionString: process.env.DATABASE_URL
 });
