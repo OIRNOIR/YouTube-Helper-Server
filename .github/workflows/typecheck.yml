@@ -46,6 +46,7 @@ jobs:
             shell: bash
             env:
                 PRISMA_CLI_BINARY_TARGETS: "debian-openssl-3.0.x"
+                DATABASE_URL: ""
 
           - name: Run Check
             run: ${{ matrix.cmds }}
