@@ -5,7 +5,7 @@ import {
 	TMP_DIR,
 	VIDEOS_PER_CHANNEL_SCRAPE_LIMIT
 } from "../constants.ts";
-import type { PrismaClient, Video } from "../prisma/generated/prisma";
+import type { PrismaClient, Video } from "../prisma/generated/prisma/client.ts";
 import type { Channels } from "../structures/Channels.ts";
 import { execAsync, getFullVideoSponsorBlockSegments } from "../util.ts";
 

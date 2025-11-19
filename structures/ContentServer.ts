@@ -6,7 +6,7 @@ import {
 	type PrismaClient,
 	type Video,
 	VideoType
-} from "../prisma/generated/prisma";
+} from "../prisma/generated/prisma/client.ts";
 
 function logRequest(request: Bun.BunRequest | Request, notFound = false) {
 	console.log(
