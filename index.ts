@@ -2,9 +2,9 @@ import fs from "node:fs";
 import path from "node:path";
 /* cspell: disable-next-line */
 import { msToShort, splitMessage } from "@oirnoir/util";
+import { PrismaPg } from "@prisma/adapter-pg";
 import { type ConfigFile, TMP_DIR } from "./constants.ts";
 import { PrismaClient } from "./prisma/generated/prisma/client";
-import { PrismaPg } from '@prisma/adapter-pg';
 import {
 	checkSponsorBlock,
 	purgeUnsubscribed,
@@ -14,10 +14,10 @@ import { Channels } from "./structures/Channels.ts";
 import { ContentServer } from "./structures/ContentServer.ts";
 import { execAsync, shuffle } from "./util.ts";
 import "dotenv/config";
-import {env} from "prisma/config";
+import { env } from "prisma/config";
 
 const prismaAdapter = new PrismaPg({
-  connectionString: env("DATABASE_URL"),
+	connectionString: env("DATABASE_URL")
 });
 
 const prisma = new PrismaClient({
