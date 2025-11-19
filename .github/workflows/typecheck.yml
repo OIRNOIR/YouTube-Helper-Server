@@ -42,7 +42,7 @@ jobs:
                 PRISMA_CLI_BINARY_TARGETS: "debian-openssl-3.0.x"
 
           - name: Set up DATABASE_URL
-            run: echo "DATABASE_URL=postgresql://user:pass@localhost:5432/db" >> $GITHUB_ENV
+            run: echo "DATABASE_URL=postgresql://user:dummy@localhost:5432/dummy_db" >> $GITHUB_ENV
           
           - name: Generate Prisma
             run: bun db:generate
