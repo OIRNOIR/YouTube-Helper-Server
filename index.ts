@@ -3,6 +3,7 @@ import path from "node:path";
 /* cspell: disable-next-line */
 import { msToShort, splitMessage } from "@oirnoir/util";
 import { PrismaPg } from "@prisma/adapter-pg";
+import { config as envConfig } from "dotenv";
 import { type ConfigFile, TMP_DIR } from "./constants.ts";
 import { PrismaClient } from "./prisma/generated/prisma/client";
 import {
@@ -13,11 +14,11 @@ import {
 import { Channels } from "./structures/Channels.ts";
 import { ContentServer } from "./structures/ContentServer.ts";
 import { execAsync, shuffle } from "./util.ts";
-import "dotenv/config";
-import { env } from "prisma/config";
+
+envConfig({ quiet: true });
 
 const prismaAdapter = new PrismaPg({
-	connectionString: env("DATABASE_URL")
+	connectionString: process.env.DATABASE_URL
 });
 
 const prisma = new PrismaClient({
