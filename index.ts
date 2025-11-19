@@ -19,8 +19,6 @@ const __dirname = path.dirname(new URL(import.meta.url).pathname);
 
 envConfig({ quiet: true, path: path.join(__dirname, ".env") });
 
-console.log(process.env);
-
 const prismaAdapter = new PrismaPg({
 	connectionString: process.env.DATABASE_URL
 });
