@@ -5,7 +5,7 @@
     "": {
       "name": "youtube-helper",
       "dependencies": {
-        "@oirnoir/util": "0.0.19",
+        "@oirnoir/util": "0.0.20",
         "@prisma/adapter-pg": "7.0.0",
         "@prisma/client": "7.0.0",
         "@types/bun": "1.3.2",
@@ -68,7 +68,7 @@
 
     "@mrleebo/prisma-ast": ["@mrleebo/prisma-ast@0.12.1", "", { "dependencies": { "chevrotain": "^10.5.0", "lilconfig": "^2.1.0" } }, "sha512-JwqeCQ1U3fvccttHZq7Tk0m/TMC6WcFAQZdukypW3AzlJYKYTGNVd1ANU2GuhKnv4UQuOFj3oAl0LLG/gxFN1w=="],
 
-    "@oirnoir/util": ["@oirnoir/util@0.0.19", "", { "dependencies": { "@types/bun": "1.3.2", "@types/timestring": "7.0.0", "discord.js": "14.25.0", "timestring": "7.0.0" } }, "sha512-dyg3j5LGTccPgddAd1NvSqAUyrjp6e0NZhjgANg1jRcjbHjrpcpe+uULmWIn7+tTJ7cPisexw+GoQVaSLSB8ew=="],
+    "@oirnoir/util": ["@oirnoir/util@0.0.20", "", { "dependencies": { "@types/bun": "1.3.2", "@types/timestring": "7.0.0", "discord.js": "14.25.1", "timestring": "7.0.0" } }, "sha512-GjfENxkPRPdvSXiFf90X2STmM7ExYVXQO/6Mn9K+hyRFm9wcTzIjtLZCkU4THglWoE8gbSaiCJIriT83+tJCJw=="],
 
     "@prisma/adapter-pg": ["@prisma/adapter-pg@7.0.0", "", { "dependencies": { "@prisma/driver-adapter-utils": "7.0.0", "pg": "^8.16.3", "postgres-array": "3.0.4" } }, "sha512-cis1Ib+TVbtSi2VU5Zm1fSmAcA8jg7KwUTbJ6LcWIm1eww380utXM8G23F3UCEPOJO4HiKt6adP/Q1hukjAkgw=="],
 
@@ -323,6 +323,8 @@
     "@discordjs/ws/@discordjs/util": ["@discordjs/util@1.1.1", "", {}, "sha512-eddz6UnOBEB1oITPinyrB2Pttej49M9FZQY8NxgEvc3tq6ZICZ19m70RsmzRdDHk80O9NoYN/25AqJl8vPVf/g=="],
 
     "@discordjs/ws/discord-api-types": ["discord-api-types@0.38.30", "", {}, "sha512-KhAqlBrg+rVK+Ob7INMF5o63yW4/GUzRatG/AjyVsIO8lgcLyR8qCl2HokIVzWwmzkJYG0CEPXsKMOqau3E8NA=="],
+
+    "@oirnoir/util/discord.js": ["discord.js@14.25.1", "", { "dependencies": { "@discordjs/builders": "^1.13.0", "@discordjs/collection": "1.5.3", "@discordjs/formatters": "^0.6.2", "@discordjs/rest": "^2.6.0", "@discordjs/util": "^1.2.0", "@discordjs/ws": "^1.2.3", "@sapphire/snowflake": "3.5.3", "discord-api-types": "^0.38.33", "fast-deep-equal": "3.1.3", "lodash.snakecase": "4.1.1", "magic-bytes.js": "^1.10.0", "tslib": "^2.6.3", "undici": "6.21.3" } }, "sha512-2l0gsPOLPs5t6GFZfQZKnL1OJNYFcuC/ETWsW4VtKVD/tg4ICa9x+jb9bkPffkMdRpRpuUaO/fKkHCBeiCKh8g=="],
 
     "@prisma/engines/@prisma/get-platform": ["@prisma/get-platform@7.0.0", "", { "dependencies": { "@prisma/debug": "7.0.0" } }, "sha512-zyhzrAa+y/GfyCzTnuk0D9lfkvDzo7IbsNyuhTqhPu/AN0txm0x26HAR4tJLismla/fHf5fBzYwSivYSzkpakg=="],
 
