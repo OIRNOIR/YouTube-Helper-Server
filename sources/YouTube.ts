@@ -211,6 +211,8 @@ export async function scrapeChannel(
 							`yt-dlp -J --cookies ${cookiesPath} "https://www.youtube.com/watch?v=${video.id}" > ${videoDataResFile}`
 						);
 						if (attempt2res.stderr.length > 0 || attempt2res.error != null) {
+							console.error(attempt2res.stderr);
+							console.error(attempt2res.error);
 							throw new Error(
 								"yt-dlp video data scrape error; check console for details"
 							);
