@@ -60,12 +60,14 @@ export async function scrapeChannel(
 	const parts = channelURI.replace("yt://", "").split("/");
 	const channelId = parts[0];
 	const expectedUploaderId = parts[1];
-	if (channelId == undefined)
+	if (channelId == undefined) {
 		throw new Error(`Channel ID could not be parsed from url ${channelURI}`);
-	if (expectedUploaderId == undefined)
+	}
+	if (expectedUploaderId == undefined) {
 		throw new Error(
 			`Expected Uploader ID could not be parsed from url ${channelURI}`
 		);
+	}
 	const dataResFile = `${TMP_DIR}/${Date.now()}.txt`;
 	const dataRes = await execAsync(
 		`yt-dlp -J --flat-playlist -I 0:100 "https://www.youtube.com/channel/${channelId}" > ${dataResFile}`
@@ -168,7 +170,10 @@ export async function scrapeChannel(
 					(video.duration != null && video.duration != existingVideo.duration)
 				) {
 					// Update title and duration
-					const updateArgs: { where: { videoId: string }; data: Partial<Video> } = {
+					const updateArgs: {
+						where: { videoId: string };
+						data: Partial<Video>;
+					} = {
 						where: { videoId: video.id },
 						data: {
 							title: video.title
@@ -187,7 +192,9 @@ export async function scrapeChannel(
 		const [result, sbStatus] = await Promise.all([
 			(async () => {
 				console.log(
-					`(${i + 1}/${subscriptionsCount}) [${index}/${newVideos.length}] Extracting extended attributes from new video ${video.id}...`
+					`(${
+						i + 1
+					}/${subscriptionsCount}) [${index}/${newVideos.length}] Extracting extended attributes from new video ${video.id}...`
 				);
 				// Literally the only thing we care about from this massive amount of data is the release date...
 				const videoDataResFile = `${TMP_DIR}/${Date.now()}.txt`;
@@ -205,7 +212,9 @@ export async function scrapeChannel(
 					) {
 						// Try again with authentication
 						console.log(
-							`(${i + 1}/${subscriptionsCount}) [${index}/${newVideos.length}] Retrying video ${video.id} with authentication...`
+							`(${
+								i + 1
+							}/${subscriptionsCount}) [${index}/${newVideos.length}] Retrying video ${video.id} with authentication...`
 						);
 						const attempt2res = await execAsync(
 							`yt-dlp -J --cookies ${cookiesPath} "https://www.youtube.com/watch?v=${video.id}" > ${videoDataResFile}`
@@ -225,7 +234,9 @@ export async function scrapeChannel(
 					) {
 						// Skip for now
 						console.log(
-							`(${i + 1}/${subscriptionsCount}) [${index}/${newVideos.length}] Video ${video.id} was still processing.`
+							`(${
+								i + 1
+							}/${subscriptionsCount}) [${index}/${newVideos.length}] Video ${video.id} was still processing.`
 						);
 						await channels.infoWebhook.send({
 							content: `Video ${video.id} was still processing.`
@@ -245,7 +256,9 @@ export async function scrapeChannel(
 						// Handle this case here.
 						console.log(video);
 						console.log(
-							`(${i + 1}/${subscriptionsCount}) [${index}/${newVideos.length}] Flat playlist fetch failed to retrieve availability information. Video ${video.id} required payment.`
+							`(${
+								i + 1
+							}/${subscriptionsCount}) [${index}/${newVideos.length}] Flat playlist fetch failed to retrieve availability information. Video ${video.id} required payment.`
 						);
 						return "SKIP";
 					} else if (videoDataRes.stderr.includes("This live event will begin in")) {
@@ -254,7 +267,9 @@ export async function scrapeChannel(
 						// Handle this case here.
 						console.log(video);
 						console.log(
-							`(${i + 1}/${subscriptionsCount}) [${index}/${newVideos.length}] Flat playlist fetch failed to retrieve availability information. Video ${video.id} is a pending livestream.`
+							`(${
+								i + 1
+							}/${subscriptionsCount}) [${index}/${newVideos.length}] Flat playlist fetch failed to retrieve availability information. Video ${video.id} is a pending livestream.`
 						);
 						return "SKIP";
 					} else if (videoDataRes.stderr.includes("ERROR: ")) {
@@ -266,7 +281,9 @@ export async function scrapeChannel(
 							JSON.parse(fs.readFileSync(videoDataResFile, "utf8")) as FullVideoData
 						).timestamp;
 						console.log(
-							`(${i + 1}/${subscriptionsCount}) [${index}/${newVideos.length}] There were warnings on this request. Make sure ${timestamp} is the right timestamp for ${video.id}.`
+							`(${
+								i + 1
+							}/${subscriptionsCount}) [${index}/${newVideos.length}] There were warnings on this request. Make sure ${timestamp} is the right timestamp for ${video.id}.`
 						);
 						await channels.infoWebhook.send({
 							content: `There were warnings on this request. Make sure ${timestamp} is the right timestamp for ${video.id}.`
@@ -289,18 +306,24 @@ export async function scrapeChannel(
 					return "SKIP";
 				}
 				console.log(
-					`(${i + 1}/${subscriptionsCount}) [${index}/${newVideos.length}] Done extracting extended attributes from new video ${video.id}!`
+					`(${
+						i + 1
+					}/${subscriptionsCount}) [${index}/${newVideos.length}] Done extracting extended attributes from new video ${video.id}!`
 				);
 				return { directVideoData, timestampMS };
 			})(),
 			(async () => {
 				console.log(
-					`(${i + 1}/${subscriptionsCount}) [${index}/${newVideos.length}] Fetching full-video SponsorBlock segments from new video ${video.id}...`
+					`(${
+						i + 1
+					}/${subscriptionsCount}) [${index}/${newVideos.length}] Fetching full-video SponsorBlock segments from new video ${video.id}...`
 				);
 				try {
 					const res = await getFullVideoSponsorBlockSegments(video.id);
 					console.log(
-						`(${i + 1}/${subscriptionsCount}) [${index}/${newVideos.length}] Done fetching full-video SponsorBlock segments from new video ${video.id}!`
+						`(${
+							i + 1
+						}/${subscriptionsCount}) [${index}/${newVideos.length}] Done fetching full-video SponsorBlock segments from new video ${video.id}!`
 					);
 					return res;
 				} catch (error) {
@@ -317,7 +340,9 @@ export async function scrapeChannel(
 		]);
 		if (result == "SKIP" || sbStatus == "SKIP") {
 			console.error(
-				`(${i + 1}/${subscriptionsCount}) [${index}/${newVideos.length}] Skipping ${video.id}...`
+				`(${
+					i + 1
+				}/${subscriptionsCount}) [${index}/${newVideos.length}] Skipping ${video.id}...`
 			);
 			continue;
 		}
@@ -346,7 +371,9 @@ export async function scrapeChannel(
 		await prisma.video.create({ data: newVideoDocument });
 		if (index >= VIDEOS_PER_CHANNEL_SCRAPE_LIMIT) {
 			console.log(
-				`(${i + 1}/${subscriptionsCount}) Skipping the rest of the new videos because there is a ${VIDEOS_PER_CHANNEL_SCRAPE_LIMIT} video limit per channel on new videos per scrape.`
+				`(${
+					i + 1
+				}/${subscriptionsCount}) Skipping the rest of the new videos because there is a ${VIDEOS_PER_CHANNEL_SCRAPE_LIMIT} video limit per channel on new videos per scrape.`
 			);
 			break;
 		}

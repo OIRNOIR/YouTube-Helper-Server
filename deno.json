@@ -1,0 +1,13 @@
+{
+	"compilerOptions": {
+		"lib": ["deno.ns", "deno.window"]
+	},
+	"tasks": {
+		"lint": "biome check . --write && deno lint",
+		"style:check": "bun x @biomejs/biome ci . && deno lint",
+		"typecheck": "deno check",
+		"db:generate": "prisma generate --no-hints",
+		"db:migrate": "prisma migrate dev",
+		"db:deploy": "prisma migrate deploy"
+	}
+}

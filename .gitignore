@@ -3,3 +3,4 @@ config/
 *.DS_Store
 **/.env
 **/prisma/generated
+.vim

@@ -1,8 +1,9 @@
+import type { Buffer } from "node:buffer";
 import { type ExecException, type ExecOptions, exec } from "node:child_process";
 import { subtle as subtleCrypto } from "node:crypto";
 import { sleep } from "bun";
 
-export async function execAsync(
+export function execAsync(
 	command: string,
 	settings?: ExecOptions
 ): Promise<{
@@ -30,8 +31,9 @@ export function shuffle<T>(array: T[]): T[] {
 		// And swap it with the current element.
 		const temp = array[randomIndex];
 		const current = array[currentIndex];
-		if (temp == undefined || current == undefined)
+		if (temp == undefined || current == undefined) {
 			throw new Error("Stuff didn't work");
+		}
 		array[randomIndex] = current;
 		array[currentIndex] = temp;
 	}
@@ -54,7 +56,10 @@ export async function getFullVideoSponsorBlockSegments(
 	recurseIfError = true
 ): Promise<null | "sponsor" | "selfpromo" | "exclusive_access"> {
 	const hash = await getSHA256Hash(videoId);
-	const url = `https://sponsor.ajay.app/api/skipSegments/${hash.slice(0, 4)}?categories=["sponsor","selfpromo","exclusive_access"]&actionType=full`;
+	const url = `https://sponsor.ajay.app/api/skipSegments/${hash.slice(
+		0,
+		4
+	)}?categories=["sponsor","selfpromo","exclusive_access"]&actionType=full`;
 	const res = await fetch(url);
 	if (res.status == 404) {
 		// Absolutely no segments were found with this hash, don't even need to parse the response

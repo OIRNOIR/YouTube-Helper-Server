@@ -60,13 +60,19 @@ export class ContentServer {
 					}
 					const page =
 						pageParam == null ||
-						!isNumeric(pageParam, { allowNegative: false, allowDecimal: false }) ||
+						!isNumeric(pageParam, {
+							allowNegative: false,
+							allowDecimal: false
+						}) ||
 						Number(pageParam) < 2
 							? 1
 							: Number(pageParam);
 					const limit =
 						limitParam == null ||
-						!isNumeric(limitParam, { allowNegative: false, allowDecimal: false })
+						!isNumeric(limitParam, {
+							allowNegative: false,
+							allowDecimal: false
+						})
 							? 25
 							: Math.min(1000, Math.max(1, Number(limitParam)));
 					const filter: { unread?: boolean; type?: { in: VideoType[] } } = {};

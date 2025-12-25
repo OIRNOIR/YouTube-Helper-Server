@@ -1,11 +1,12 @@
 import fs from "node:fs";
 import path from "node:path";
+import process from "node:process";
 /* cspell: disable-next-line */
 import { msToShort, splitMessage } from "@oirnoir/util";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { config as envConfig } from "dotenv";
 import { type ConfigFile, TMP_DIR } from "./constants.ts";
-import { PrismaClient } from "./prisma/generated/prisma/client";
+import { PrismaClient } from "./prisma/generated/prisma/client.ts";
 import {
 	checkSponsorBlock,
 	purgeUnsubscribed,
@@ -96,7 +97,9 @@ async function updateFeeds(): Promise<void> {
 			);
 		}
 		console.log(
-			`Done! Fetching all channels took ${msToShort(Date.now() - start)}. See you soon!`
+			`Done! Fetching all channels took ${msToShort(
+				Date.now() - start
+			)}. See you soon!`
 		);
 		await purgeUnsubscribed(prisma, subscriptions, shortsWhitelist);
 		await checkSponsorBlock(prisma);
@@ -111,16 +114,18 @@ async function updateFeeds(): Promise<void> {
 }
 
 function feedInterval() {
-	setTimeout(
-		() => {
-			feedInterval();
-		},
-		Math.trunc(Math.random() * 300000 + 900000)
-	).unref(); // Minimum of 15 minutes, maximum of 20 minutes
+	Deno.unrefTimer(
+		setTimeout(
+			() => {
+				feedInterval();
+			},
+			Math.trunc(Math.random() * 300000 + 900000)
+		)
+	); // Minimum of 15 minutes, maximum of 20 minutes
 	updateFeeds(); // No await because we give zero shits about its result or waiting for it to finish
 }
 
-async function main() {
+function main() {
 	server = new ContentServer(prisma, configFile, logUncaughtException);
 	feedInterval();
 }
@@ -137,7 +142,9 @@ async function logUncaughtException(err: unknown): Promise<number> {
 		if (stack?.includes("Unknown interaction")) {
 			ping = "";
 		}
-		const text = `${ping} UNCAUGHT (YouTube Helper)\`\`\`Stack:\n${String(stack)}\n\nInspected:\n${Bun.inspect(err)}\n\`\`\``;
+		const text = `${ping} UNCAUGHT (YouTube Helper)\`\`\`Stack:\n${String(
+			stack
+		)}\n\nInspected:\n${Bun.inspect(err)}\n\`\`\``;
 		const msgs = splitMessage(text, { prepend: "```\n", append: "\n```" });
 		for (const msg of msgs) {
 			await channels.errWebhook.send(msg);
@@ -146,11 +153,11 @@ async function logUncaughtException(err: unknown): Promise<number> {
 	return ts;
 }
 
-process.on("uncaughtException", async (err) => {
+process.on("uncaughtException", (err) => {
 	logUncaughtException(err);
 });
 
-process.on("unhandledRejection", async (err) => {
+process.on("unhandledRejection", (err) => {
 	logUncaughtException(err);
 });
 
@@ -160,10 +167,12 @@ process.on("message", async (message) => {
 		await prisma.$disconnect();
 		if (server != undefined) {
 			server.stop(true);
-			setTimeout(() => {
-				console.log("YouTube Helper: Shutdown timeout");
-				return process.exit(1);
-			}, 1000).unref();
+			Deno.unrefTimer(
+				setTimeout(() => {
+					console.log("YouTube Helper: Shutdown timeout");
+					return process.exit(1);
+				}, 1000)
+			);
 		} else {
 			return process.exit(0);
 		}
