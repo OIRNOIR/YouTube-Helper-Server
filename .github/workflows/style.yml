@@ -18,25 +18,17 @@ jobs:
             matrix:
                 cmds: ["bun style:check"]
         steps:
-          - uses: oven-sh/setup-bun@v2
+          - uses: denoland/setup-deno@v2
+            with:
+                cache: true
 
           - name: Check out code
             uses: actions/checkout@v6
             with:
                 submodules: true
 
-          - name: Cache dependencies
-            uses: actions/cache@v5
-            with:
-                path: |
-                    ~/.bun/install/cache
-                    node_modules
-                key: ${{ runner.os }}-bun-${{ hashFiles('**/bun.lock') }}
-                restore-keys: |
-                    ${{ runner.os }}-bun-
-
           - name: Install dependencies
-            run: bun install
+            run: deno install
             shell: bash
 
           - name: Run Check
