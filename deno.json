@@ -9,5 +9,8 @@
 		"db:generate": "prisma generate --no-hints",
 		"db:migrate": "prisma migrate dev",
 		"db:deploy": "prisma migrate deploy"
+	},
+	"imports": {
+		"@oak/oak": "jsr:@oak/oak@17.2.0"
 	}
 }

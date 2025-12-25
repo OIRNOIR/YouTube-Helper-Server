@@ -32,7 +32,6 @@ const configFile: ConfigFile = JSON.parse(
 	fs.readFileSync(path.join(__dirname, "config", "config.json"), "utf8")
 );
 
-let server: ContentServer;
 const channels = new Channels(configFile);
 let currentlyFetching = false;
 
@@ -126,7 +125,7 @@ function feedInterval() {
 }
 
 function main() {
-	server = new ContentServer(prisma, configFile, logUncaughtException);
+	new ContentServer(prisma, configFile, logUncaughtException);
 	feedInterval();
 }
 
@@ -144,7 +143,7 @@ async function logUncaughtException(err: unknown): Promise<number> {
 		}
 		const text = `${ping} UNCAUGHT (YouTube Helper)\`\`\`Stack:\n${String(
 			stack
-		)}\n\nInspected:\n${Bun.inspect(err)}\n\`\`\``;
+		)}\n\nInspected:\n${Deno.inspect(err)}\n\`\`\``;
 		const msgs = splitMessage(text, { prepend: "```\n", append: "\n```" });
 		for (const msg of msgs) {
 			await channels.errWebhook.send(msg);
@@ -165,16 +164,6 @@ process.on("message", async (message) => {
 	if (message == "shutdown") {
 		console.log("Shutdown: signal");
 		await prisma.$disconnect();
-		if (server != undefined) {
-			server.stop(true);
-			Deno.unrefTimer(
-				setTimeout(() => {
-					console.log("YouTube Helper: Shutdown timeout");
-					return process.exit(1);
-				}, 1000)
-			);
-		} else {
-			return process.exit(0);
-		}
+		return process.exit(0);
 	}
 });

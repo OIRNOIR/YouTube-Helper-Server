@@ -1,7 +1,6 @@
 import type { Buffer } from "node:buffer";
 import { type ExecException, type ExecOptions, exec } from "node:child_process";
 import { subtle as subtleCrypto } from "node:crypto";
-import { sleep } from "bun";
 
 export function execAsync(
 	command: string,
@@ -15,6 +14,12 @@ export function execAsync(
 		exec(command, settings, (error, stdout, stderr) => {
 			resolve({ error, stdout, stderr });
 		});
+	});
+}
+
+function sleep(ms: number) {
+	return new Promise((resolve) => {
+		setTimeout(resolve, ms);
 	});
 }
 
