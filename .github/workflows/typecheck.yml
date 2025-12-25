@@ -16,27 +16,19 @@ jobs:
         runs-on: ubuntu-latest
         strategy:
             matrix:
-                cmds: ["bun typecheck"]
+                cmds: ["deno task typecheck"]
         steps:
-          - uses: oven-sh/setup-bun@v2
+          - uses: denoland/setup-deno@v2
+            with:
+                cache: true
 
           - name: Check out code
             uses: actions/checkout@v6
             with:
                 submodules: true
 
-          - name: Cache dependencies
-            uses: actions/cache@v5
-            with:
-                path: |
-                    ~/.bun/install/cache
-                    node_modules
-                key: ${{ runner.os }}-bun-${{ hashFiles('**/bun.lock') }}
-                restore-keys: |
-                    ${{ runner.os }}-bun-
-
           - name: Install dependencies
-            run: bun install
+            run: deno install
             shell: bash
             env:
                 PRISMA_CLI_BINARY_TARGETS: "debian-openssl-3.0.x"
@@ -45,7 +37,7 @@ jobs:
             run: echo "DATABASE_URL=postgresql://user:dummy@localhost:5432/dummy_db" >> $GITHUB_ENV
           
           - name: Generate Prisma
-            run: bun db:generate
+            run: deno task db:generate
             shell: bash
             env:
                 PRISMA_CLI_BINARY_TARGETS: "debian-openssl-3.0.x"
