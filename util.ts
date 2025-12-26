@@ -1,6 +1,7 @@
 import type { Buffer } from "node:buffer";
 import { type ExecException, type ExecOptions, exec } from "node:child_process";
 import { subtle as subtleCrypto } from "node:crypto";
+import { sleep } from "@oirnoir/util";
 
 export function execAsync(
 	command: string,
