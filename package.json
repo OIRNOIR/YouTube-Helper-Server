@@ -14,7 +14,7 @@
 		"test": "echo \"Error: no test specified\" && exit 1"
 	},
 	"dependencies": {
-		"@oirnoir/util": "0.0.20",
+		"@oirnoir/util": "0.0.21",
 		"@prisma/adapter-pg": "7.2.0",
 		"@prisma/client": "7.2.0",
 		"discord.js": "14.25.1",
