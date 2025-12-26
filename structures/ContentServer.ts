@@ -104,7 +104,7 @@ export class ContentServer {
 			const documents = documentsRaw.map((d) => {
 				return { ...d, timestampMS: d.date?.getTime() };
 			});
-			return Response.json({
+			ctx.response.body = JSON.stringify({
 				success: true,
 				documents: documents.map((d) =>
 					Object.fromEntries(Object.entries(d).filter((e) => !e[0].startsWith("_")))
@@ -119,7 +119,8 @@ export class ContentServer {
 				ctx.request.headers.get("Authorization") !==
 				config.expectedServerAuthorization
 			) {
-				return new Response(null, { status: 401 });
+				ctx.response.status = 401;
+				return;
 			}
 			const requestData = (await ctx.request.body.json()) as {
 				read?: string[];
@@ -140,7 +141,8 @@ export class ContentServer {
 				});
 				modifiedCount += result.count;
 			}
-			return Response.json({ modifiedCount });
+			ctx.response.body = JSON.stringify({ modifiedCount });
+			return;
 		});
 
 		this.server = new Application();
