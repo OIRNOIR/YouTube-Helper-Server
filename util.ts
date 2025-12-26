@@ -17,12 +17,6 @@ export function execAsync(
 	});
 }
 
-function sleep(ms: number) {
-	return new Promise((resolve) => {
-		setTimeout(resolve, ms);
-	});
-}
-
 export function shuffle<T>(array: T[]): T[] {
 	let currentIndex = array.length;
 	let randomIndex: number;
