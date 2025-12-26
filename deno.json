@@ -7,6 +7,7 @@
 	"compilerOptions": {
 		"lib": ["deno.ns", "deno.window"]
 	},
+	"nodeModulesDir": "auto",
 	"tasks": {
 		"lint": "biome check . --write && deno lint",
 		"style:check": "deno x @biomejs/biome ci . && deno lint",
