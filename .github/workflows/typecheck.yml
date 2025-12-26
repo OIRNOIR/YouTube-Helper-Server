@@ -37,7 +37,7 @@ jobs:
             run: echo "DATABASE_URL=postgresql://user:dummy@localhost:5432/dummy_db" >> $GITHUB_ENV
           
           - name: Generate Prisma
-            run: deno task db:generate
+            run: deno task -r db:generate
             shell: bash
             env:
                 PRISMA_CLI_BINARY_TARGETS: "debian-openssl-3.0.x"
