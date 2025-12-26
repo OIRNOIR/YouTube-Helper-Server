@@ -25,5 +25,14 @@
 		"dotenv": "npm:dotenv@17.2.3",
 		"fuse.js": "npm:fuse.js@7.1.0",
 		"prisma": "npm:prisma@7.2.0"
+	},
+	"permissions": {
+		"default": {
+			"env": true,
+			"read": true,
+			"write": true,
+			"run": true,
+			"net": true
+		}
 	}
 }
