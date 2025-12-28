@@ -42,7 +42,8 @@ export class ContentServer {
 				ctx.request.headers.get("Authorization") !==
 				config.expectedServerAuthorization
 			) {
-				return new Response(null, { status: 401 });
+				ctx.response.status = 401;
+				return;
 			}
 			const url = new URL(ctx.request.url);
 			const pageParam = url.searchParams.get("page");
@@ -104,6 +105,7 @@ export class ContentServer {
 			const documents = documentsRaw.map((d) => {
 				return { ...d, timestampMS: d.date?.getTime() };
 			});
+			ctx.response.headers.set("Content-Type", "application/json");
 			ctx.response.body = JSON.stringify({
 				success: true,
 				documents: documents.map((d) =>
@@ -141,6 +143,7 @@ export class ContentServer {
 				});
 				modifiedCount += result.count;
 			}
+			ctx.response.headers.set("Content-Type", "application/json");
 			ctx.response.body = JSON.stringify({ modifiedCount });
 			return;
 		});
@@ -150,33 +153,5 @@ export class ContentServer {
 		this.server.use(router.allowedMethods());
 
 		this.server.listen({ port: config.port });
-		//this.models = models;
-		//this.config = config;
-		/*this.server = Bun.serve({
-			port: config.port,
-			development: false,
-			routes: {
-				"/api/feed": async (req: BunRequest<"/api/feed">) => {
-				},
-				"/api/read": {
-					PATCH: async (req: BunRequest<"/api/read">) => {
-					}
-				}
-			},
-			error: async (error) => {
-				const timestamp = await logUncaughtException(error);
-				return Response.json(
-					{ message: "Internal Server Error", timestamp },
-					{
-						status: 500
-					}
-				);
-			},
-			fetch: (req) => {
-				logRequest(req, true);
-
-				return new Response(null, { status: 404 });
-			}
-		});*/
 	}
 }
