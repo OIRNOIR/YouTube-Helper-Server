@@ -17,15 +17,15 @@
 		"db:deploy": "prisma migrate deploy"
 	},
 	"imports": {
-		"@biomejs/biome": "npm:@biomejs/biome@2.3.10",
-		"@oak/oak": "jsr:@oak/oak@17.2.0",
-		"@oirnoir/util": "jsr:@oirnoir/util@0.0.22",
-		"@prisma/adapter-pg": "npm:@prisma/adapter-pg@7.2.0",
-		"@prisma/client": "npm:@prisma/client@7.2.0",
-		"discord.js": "npm:discord.js@14.25.1",
-		"dotenv": "npm:dotenv@17.2.3",
-		"fuse.js": "npm:fuse.js@7.1.0",
-		"prisma": "npm:prisma@7.2.0"
+		"@biomejs/biome": "npm:@biomejs/biome@^2.3.10",
+		"@oak/oak": "jsr:@oak/oak@^17.2.0",
+		"@oirnoir/util": "jsr:@oirnoir/util@^0.0.23",
+		"@prisma/adapter-pg": "npm:@prisma/adapter-pg@^7.2.0",
+		"@prisma/client": "npm:@prisma/client@^7.2.0",
+		"discord.js": "npm:discord.js@^14.25.1",
+		"dotenv": "npm:dotenv@^17.2.3",
+		"fuse.js": "npm:fuse.js@^7.1.0",
+		"prisma": "npm:prisma@^7.2.0"
 	},
 	"permissions": {
 		"default": {
