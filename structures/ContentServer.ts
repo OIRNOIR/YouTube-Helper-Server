@@ -112,6 +112,7 @@ export class ContentServer {
 					Object.fromEntries(Object.entries(d).filter((e) => !e[0].startsWith("_")))
 				)
 			});
+			ctx.response.status = 200;
 		});
 
 		router.patch("/api/read", async (ctx) => {
@@ -145,6 +146,7 @@ export class ContentServer {
 			}
 			ctx.response.headers.set("Content-Type", "application/json");
 			ctx.response.body = JSON.stringify({ modifiedCount });
+			ctx.response.status = 200;
 			return;
 		});
 
