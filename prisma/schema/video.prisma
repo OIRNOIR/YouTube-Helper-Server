@@ -30,4 +30,5 @@ model Video {
 	isCurrentlyLive Boolean
 	unread Boolean @default(true)
 	sponsorBlockStatus SponsorBlockStatus?
+	url String?
 }
