@@ -7,11 +7,7 @@ import { PrismaPg } from "@prisma/adapter-pg";
 import { config as envConfig } from "dotenv";
 import { type ConfigFile, TMP_DIR } from "./constants.ts";
 import { PrismaClient } from "./prisma/generated/prisma/client.ts";
-import {
-	checkSponsorBlock,
-	purgeUnsubscribed,
-	scrapeChannel
-} from "./sources/YouTube.ts";
+import { Source } from "./Source.ts";
 import { Channels } from "./structures/Channels.ts";
 import { ContentServer } from "./structures/ContentServer.ts";
 import { execAsync, shuffle } from "./util.ts";
@@ -73,6 +69,17 @@ async function updateFeeds(): Promise<void> {
 		}
 		shuffle(subscriptions);
 		const cookiesPath = path.join(__dirname, "config", "cookies.txt");
+		console.log("Loading sources");
+		const sources: Source[] = [];
+		for (const file of fs
+			.readdirSync(path.join(__dirname, "sources"))
+			.filter((f) => f.endsWith(".ts"))) {
+			const imported = await import(path.join(__dirname, "sources", file));
+			const source = new imported.default();
+			if (!(source instanceof Source))
+				throw new Error("Incorrect class constructed");
+			sources.push(source);
+		}
 		console.log("Starting the timer");
 		const start = Date.now();
 		for (let i = 0; i < subscriptions.length; i++) {
@@ -85,7 +92,10 @@ async function updateFeeds(): Promise<void> {
 				fs.rmSync(TMP_DIR, { recursive: true });
 			}
 			fs.mkdirSync(TMP_DIR);
-			await scrapeChannel(
+			const source = sources.find((s) => s.identifyURL(channelURI));
+			if (source == undefined)
+				throw new Error(`No source found for ${channelURI}`);
+			await source.scrapeChannel(
 				prisma,
 				channels,
 				channelURI,
@@ -100,8 +110,9 @@ async function updateFeeds(): Promise<void> {
 				Date.now() - start
 			)}. See you soon!`
 		);
-		await purgeUnsubscribed(prisma, subscriptions, shortsWhitelist);
-		await checkSponsorBlock(prisma);
+		for (const source of sources) {
+			await source.postRunTasks(prisma, subscriptions, shortsWhitelist);
+		}
 	} finally {
 		if (fs.existsSync(TMP_DIR)) {
 			fs.rmSync(TMP_DIR, { recursive: true });
