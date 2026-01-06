@@ -43,10 +43,6 @@ interface ChannelData {
 	data: VideoListing[];
 }
 
-// TODO: Pagination
-// A list of lists (videos, shorts, streams) of a channel can be found at yt-dlp -J --flat-playlist -I 0:2 "https://www.youtube.com/@halfasinteresting" | jq ".entries | map(.webpage_url)"
-// Check if this is still true for channels with only one list
-
 export default class PeerTube extends Source {
 	override identifyURL(url: string): boolean {
 		return url.startsWith("peertube://");
@@ -256,9 +252,12 @@ async function purgeUnsubscribed(
 		)
 	);
 	for (const channel of allChannels) {
+		const splitChannel = channel.split("@");
+		const hostname = splitChannel[1];
+		const channelName = splitChannel[0];
 		const unsubscribed =
 			subscriptions.findIndex(
-				(s) => s.replace("peertube://", "").split("/")[0] == channel
+				(s) => s.replace("peertube://", "") == `${hostname}/${channelName}`
 			) == -1;
 		if (unsubscribed) {
 			const channelVideo = await prisma.video.findFirst({

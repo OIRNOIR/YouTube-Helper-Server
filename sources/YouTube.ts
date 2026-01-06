@@ -404,16 +404,6 @@ async function purgeUnsubscribed(
 	subscriptions: string[],
 	shortsWhitelist: string[]
 ) {
-	console.log("Populating video URLs...");
-	const videos = await prisma.video.findMany({ where: { platform: "YouTube" } });
-	for (const v of videos) {
-		await prisma.video.update({
-			where: { videoId: v.videoId },
-			data: {
-				url: `https://youtu.be/${v.videoId}`
-			}
-		});
-	}
 	console.log("Checking for unsubscribed channels...");
 	const allChannels = new Set(
 		(await prisma.video.findMany({ where: { platform: "YouTube" } })).map(
