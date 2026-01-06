@@ -220,7 +220,8 @@ export default class PeerTube extends Source {
 				isCurrentlyLive: video.isLive,
 				// Mark as read if the newly imported video is a week old
 				unread: Date.now() - timestampMS < NEW_UNREAD_THRESHOLD,
-				sponsorBlockStatus: null
+				sponsorBlockStatus: null,
+				url: video.url
 			};
 			await prisma.video.create({ data: newVideoDocument });
 			if (index >= VIDEOS_PER_CHANNEL_SCRAPE_LIMIT) {

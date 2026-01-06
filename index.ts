@@ -40,6 +40,7 @@ let shortsWhitelist: string[] = JSON.parse(
 ) as string[];
 
 async function updateFeeds(): Promise<void> {
+	await prisma.video.deleteMany({ where: { platform: "PeerTube" } });
 	const alreadyFetching = currentlyFetching;
 	try {
 		if (currentlyFetching) {

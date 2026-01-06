@@ -374,7 +374,8 @@ export default class YouTube extends Source {
 				isCurrentlyLive: video.live_status == "is_live",
 				// Mark as read if the newly imported video is a week old
 				unread: Date.now() - timestampMS < NEW_UNREAD_THRESHOLD,
-				sponsorBlockStatus: sbStatus
+				sponsorBlockStatus: sbStatus,
+				url: `https://youtu.be/${video.id}`
 			};
 			await prisma.video.create({ data: newVideoDocument });
 			if (index >= VIDEOS_PER_CHANNEL_SCRAPE_LIMIT) {
@@ -403,6 +404,16 @@ async function purgeUnsubscribed(
 	subscriptions: string[],
 	shortsWhitelist: string[]
 ) {
+	console.log("Populating video URLs...");
+	const videos = await prisma.video.findMany({ where: { platform: "YouTube" } });
+	for (const v of videos) {
+		await prisma.video.update({
+			where: { videoId: v.videoId },
+			data: {
+				url: `https://youtu.be/${v.videoId}`
+			}
+		});
+	}
 	console.log("Checking for unsubscribed channels...");
 	const allChannels = new Set(
 		(await prisma.video.findMany({ where: { platform: "YouTube" } })).map(
