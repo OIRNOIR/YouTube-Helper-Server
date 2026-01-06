@@ -43,6 +43,8 @@ interface ChannelData {
 	data: VideoListing[];
 }
 
+// TODO: Pagination
+
 export default class PeerTube extends Source {
 	override identifyURL(url: string): boolean {
 		return url.startsWith("peertube://");
