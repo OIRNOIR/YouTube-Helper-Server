@@ -1,5 +1,7 @@
 enum Platform {
 	YouTube
+	PeerTube
+	Odysee
 }
 
 enum VideoType {
