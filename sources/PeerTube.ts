@@ -14,9 +14,6 @@ interface VideoListing {
 	name: string;
 	publishedAt: string;
 	duration: number; // in seconds
-	state: {
-		id: number;
-	};
 	isLive: boolean;
 	channel: {
 		name: string;
@@ -106,7 +103,7 @@ export default class PeerTube extends Source {
 		await prisma.$transaction(async (tx) => {
 			for (const video of data.data) {
 				const existingVideo = existingVideoMap.get(video.uuid);
-				if (video.state.id != 1 && video.duration == null) {
+				if (video.duration == null) {
 					// Video is either broken or still processing
 					if (existingVideo != undefined) {
 						await tx.video.delete({ where: { videoId: video.uuid } });
