@@ -18,17 +18,17 @@ const prisma = new PrismaClient({
 
 await prisma.video.updateMany({
 	where: {
-		platform: "YouTube"
+		platform_old: "YouTube"
 	},
 	data: {
-		platform_old: "YouTube"
+		platform: "YouTube"
 	}
 });
 await prisma.video.updateMany({
 	where: {
-		platform: "PeerTube"
+		platform_old: "PeerTube"
 	},
 	data: {
-		platform_old: "PeerTube"
+		platform: "PeerTube"
 	}
 });
