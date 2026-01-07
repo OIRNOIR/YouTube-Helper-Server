@@ -17,7 +17,7 @@ enum SponsorBlockStatus {
 
 model Video {
 	videoId String @id @unique
-	platform Platform?
+	platform Platform
 	platform_old Platform?
 	type VideoType
 	title String
