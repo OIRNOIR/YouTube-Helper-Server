@@ -83,7 +83,7 @@ export default class Odysee extends Source {
 	) {
 		const splitUrl = channelURI.replace("odysee://", "").split("/");
 		const expectedChannelID = splitUrl[0];
-		const initialSearch = splitUrl[1];
+		const initialSearch = `lbry://${splitUrl[1]}`;
 		const initialSearchRes = await requestBackend("resolve", {
 			urls: [initialSearch]
 		});
