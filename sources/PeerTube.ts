@@ -57,7 +57,7 @@ export default class PeerTube extends Source {
 		i: number,
 		subscriptionsCount: number,
 		_cookiesPath: string,
-		isShortsWhitelisted: boolean
+		_isShortsWhitelisted: boolean
 	) {
 		const parts = channelURI.replace("peertube://", "").split("/");
 		const hostname = parts[0];
@@ -106,10 +106,6 @@ export default class PeerTube extends Source {
 					if (existingVideo != undefined) {
 						await tx.video.delete({ where: { videoId: video.uuid } });
 					}
-					continue;
-				}
-				if (!isShortsWhitelisted && video.url.includes("/shorts/")) {
-					// This channel is not shorts whitelisted
 					continue;
 				}
 				if (existingVideo == undefined) {
@@ -236,16 +232,15 @@ export default class PeerTube extends Source {
 	override async postRunTasks(
 		prisma: PrismaClient,
 		subscriptions: string[],
-		shortsWhitelist: string[]
+		_shortsWhitelist: string[]
 	): Promise<void> {
-		await purgeUnsubscribed(prisma, subscriptions, shortsWhitelist);
+		await purgeUnsubscribed(prisma, subscriptions);
 	}
 }
 
 async function purgeUnsubscribed(
 	prisma: PrismaClient,
-	subscriptions: string[],
-	_shortsWhitelist: string[]
+	subscriptions: string[]
 ) {
 	console.log("Checking for unsubscribed channels...");
 	const allChannels = new Set(
