@@ -1,3 +1,8 @@
+enum Platform {
+	YouTube
+	PeerTube
+}
+
 enum VideoType {
 	video
 	short
@@ -12,7 +17,8 @@ enum SponsorBlockStatus {
 
 model Video {
 	videoId String @id @unique
-	platform String
+	platform Platform?
+	platform_old Platform?
 	type VideoType
 	title String
 	description String?
