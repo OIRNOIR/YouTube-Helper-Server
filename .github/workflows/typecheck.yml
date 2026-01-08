@@ -16,7 +16,7 @@ jobs:
         runs-on: ubuntu-latest
         strategy:
             matrix:
-                cmds: ["deno task typecheck"]
+                cmds: ["deno task --node-modules-dir=auto typecheck"]
         steps:
           - uses: denoland/setup-deno@v2
             with:
@@ -28,7 +28,7 @@ jobs:
                 submodules: true
 
           - name: Install dependencies
-            run: deno install
+            run: deno install --node-modules-dir=auto
             shell: bash
             env:
                 PRISMA_CLI_BINARY_TARGETS: "debian-openssl-3.0.x"
@@ -37,7 +37,7 @@ jobs:
             run: echo "DATABASE_URL=postgresql://user:dummy@localhost:5432/dummy_db" >> $GITHUB_ENV
           
           - name: Generate Prisma
-            run: deno task -r db:generate
+            run: deno task -r --node-modules-dir=auto db:generate
             shell: bash
             env:
                 PRISMA_CLI_BINARY_TARGETS: "debian-openssl-3.0.x"

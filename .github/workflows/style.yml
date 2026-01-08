@@ -16,7 +16,7 @@ jobs:
         runs-on: ubuntu-latest
         strategy:
             matrix:
-                cmds: ["deno task style:check"]
+                cmds: ["deno task --node-modules-dir=auto style:check"]
         steps:
           - uses: denoland/setup-deno@v2
             with:
@@ -28,7 +28,7 @@ jobs:
                 submodules: true
 
           - name: Install dependencies
-            run: deno install
+            run: deno install --node-modules-dir=auto
             shell: bash
 
           - name: Run Check
