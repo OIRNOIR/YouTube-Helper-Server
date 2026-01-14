@@ -17,13 +17,15 @@ This assumes you would like to use Discord for error reporting and info logs.
 1. Clone this repository into a directory somewhere on your server, then cd to it.
 
 2. Install dependencies:
-    - [Bun](https://bun.sh/)
+    - [Deno](https://deno.com/)
+        - Can be installed via `pacman` on Arch Linux
     - [yt-dlp](https://github.com/yt-dlp/yt-dlp/)
         - This project currently assumes you install the linux binary version, not via a package manager.
     - [FFmpeg](https://ffmpeg.org/)
+    - PostgreSQL
 
-3. Install Bun packages:
-    - `bun install`
+3. Install Deno packages:
+    - `deno install`
 
 4. Create config files
     - `cp -r config.example config`
@@ -34,27 +36,36 @@ This assumes you would like to use Discord for error reporting and info logs.
         - Replace `INSERT_AUTHORIZATION_TOKEN_HERE` with an authorization token. Probably use a randomized value and keep this safe, you will need this to set up a client.
         - Replace `INSERT_YOUR_DISCORD_USER_ID_HERE` with your Discord user ID. You will be pinged when an error occurs.
         - Set the `port` to the port you wish to use.
+    - `cp .env.example .env`
+    - Edit `.env`
+        - Replace `INSERT_YOUR_PGSQL_DB_URL_HERE` with the URL you wish to use for your database
     - Add subscriptions to `subscriptions.json`
         - The format is `yt://CHANNEL_ID/@username`
         - Add channels you wish to see shorts from to `shorts-whitelist.json`
         - As an example, the valid channel `@rossmanngroup` is in the file by default. This is used as an example for the
             format of the config file, and no promotion is intended.
+        - Odysee format: `odysee://CLAIMID/@username`
+        - Peertube format: `peertube://hostname.tld/username`
     - If you wish to allow videos that require login, export a cookies.txt to `cookies.txt`.
         - This can be done via browser extension
             - One option for Chrome: [Get cookies.txt LOCALLY](https://chrome.google.com/webstore/detail/get-cookiestxt-locally/cclelndahbckbenkjhflpdbgdldlbecc)
             - One option for Firefox: [cookies.txt](https://addons.mozilla.org/en-US/firefox/addon/cookies-txt/)
             - Please be careful with what you install. Extension impersonators are a known problem with obtaining cookies.txt.
 
+5. Migrate, then install the database
+    - `deno task db:deploy`
+    - `deno task db:generate`
+
 ## Running
 
 Start the server with:
 
 ```bash
-bun run ./index.ts
+deno run ./index.ts
 ```
 
 I typically run this with [PM2](https://github.com/Unitech/pm2/). However, there are any number of ways
-to daemonize a bun.js project. It can also be configured with a reverse-proxy like `nginx`
+to daemonize a deno project. It can also be configured with a reverse-proxy like `nginx`
 to forward requests to the server to the desired port. It should be configured so that a hostname
 you control can reach the backend port.
 
