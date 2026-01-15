@@ -82,6 +82,13 @@ export default class YouTube extends Source {
 			(dataRes.stderr.length > 0 && dataRes.stderr.includes("ERROR: ")) ||
 			dataRes.error != null
 		) {
+			if (dataRes.stderr.includes("This account has been terminated")) {
+				await channels.infoWebhook.send({
+					content: `Channel \`${channelURI}\` has been terminated.`
+				});
+				console.error(`Channel ${channelURI} has been terminated.`);
+				return;
+			}
 			console.error(dataRes.stderr);
 			console.error(dataRes.error);
 			throw new Error(
