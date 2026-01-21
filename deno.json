@@ -9,9 +9,9 @@
 	},
 	"tasks": {
 		"lint": "biome check . --write && deno lint",
-		"style:check": "deno x -r @biomejs/biome ci . && deno lint",
+		"style:check": "deno x -r -y @biomejs/biome ci . && deno lint",
 		"typecheck": "deno check --node-modules-dir=auto",
-		"db:generate": "deno x -r --node-modules-dir=auto npm:prisma generate --no-hints",
+		"db:generate": "deno x -r -y --node-modules-dir=auto npm:prisma generate --no-hints",
 		"db:migrate": "prisma migrate dev",
 		"db:deploy": "prisma migrate deploy"
 	},
