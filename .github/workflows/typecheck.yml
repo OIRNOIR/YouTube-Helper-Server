@@ -28,11 +28,15 @@ jobs:
             with:
                 submodules: true
 
+          - name: Set automatic node modules directory
+            run: deno task workflow:denojsonfix
+            shell: bash
+
           - name: Approve Build Scripts
             run: deno approve-scripts npm:prisma npm:@prisma/engines
 
           - name: Install dependencies
-            run: deno install --node-modules-dir=auto
+            run: deno install
             shell: bash
             env:
                 PRISMA_CLI_BINARY_TARGETS: "debian-openssl-3.0.x"
