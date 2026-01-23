@@ -14,7 +14,7 @@
 		"db:generate": "prisma generate --no-hints",
 		"db:migrate": "prisma migrate dev",
 		"db:deploy": "prisma migrate deploy",
-		"workflow:denojsonfix": "sed -i 's/\"name\": \"youtube-helper\"/\"name\": \"youtube-helper\",\n\t\"nodeModulesDir\": \"auto\"/g' ./deno.json"
+		"workflow:denojsonfix": "sed -i 's/\"name\": \"youtube-helper\"/\"name\": \"youtube-helper\",\\n\\t\"nodeModulesDir\": \"auto\"/g' ./deno.json"
 	},
 	"imports": {
 		"@biomejs/biome": "npm:@biomejs/biome@2.3.11",
