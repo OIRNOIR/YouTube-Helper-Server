@@ -103,6 +103,7 @@ export default class Odysee extends Source {
 		const dataRes = await requestBackend("claim_search", {
 			channel_ids: [channelInfo.claim_id],
 			no_totals: true,
+			has_source: true,
 			claim_type: ["stream"],
 			order_by: ["release_time"],
 			page: 1,
