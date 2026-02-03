@@ -73,6 +73,15 @@ export default class PeerTube extends Source {
 			`https://${hostname}/api/v1/video-channels/${channelName}/videos?count=100&includeScheduledLive=false`
 		);
 		if (!dataRes.ok) {
+			if (dataRes.status >= 500 && dataRes.status <= 599) {
+				console.log(
+					`PeerTube channel ${channelURI} returned a 5xx status code (${dataRes.status}). Skipping for now...`
+				);
+				await channels.infoWebhook.send(
+					`PeerTube channel ${channelURI} returned a 5xx status code (${dataRes.status}). Skipping for now...`
+				);
+				return;
+			}
 			const text = await dataRes.text();
 			console.error(text);
 			console.error(dataRes.statusText);
