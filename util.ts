@@ -83,12 +83,14 @@ export async function getFullVideoSponsorBlockSegments(
 		console.error(url);
 		console.error(text);
 		if (recursionsRemaining > 0) {
+			console.log("SponsorBlock Retrying...");
 			await sleep(5000);
 			return await getFullVideoSponsorBlockSegments(
 				videoId,
 				recursionsRemaining - 1
 			);
 		}
+		console.log("SponsorBlock out of retries.");
 		return {
 			success: false,
 			status: res.status
