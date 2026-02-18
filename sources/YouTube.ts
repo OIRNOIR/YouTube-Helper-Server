@@ -333,24 +333,22 @@ export default class YouTube extends Source {
 							i + 1
 						}/${subscriptionsCount}) [${index}/${newVideos.length}] Fetching full-video SponsorBlock segments from new video ${video.id}...`
 					);
-					try {
-						const res = await getFullVideoSponsorBlockSegments(video.id);
+					const res = await getFullVideoSponsorBlockSegments(video.id);
+					if (res.success) {
 						console.log(
 							`(${
 								i + 1
 							}/${subscriptionsCount}) [${index}/${newVideos.length}] Done fetching full-video SponsorBlock segments from new video ${video.id}!`
 						);
-						return res;
-					} catch (error) {
-						console.error(error);
-						console.error(
-							`WARNING: Error fetching SponsorBlock segments for video ${video.id}! Skipping this video for now.`
-						);
-						await channels.infoWebhook.send({
-							content: `WARNING: Error fetching SponsorBlock segments for video ${video.id}! Skipping this video for now.`
-						});
-						return "SKIP";
+						return res.sponsorBlock;
 					}
+					console.error(
+						`WARNING: Error fetching SponsorBlock segments for video ${video.id} with status ${res.status}! Skipping this video for now.`
+					);
+					await channels.infoWebhook.send({
+						content: `WARNING: Error fetching SponsorBlock segments for video ${video.id}! Skipping this video for now.`
+					});
+					return "SKIP";
 				})()
 			]);
 			if (result == "SKIP" || sbStatus == "SKIP") {
@@ -506,11 +504,17 @@ async function checkSponsorBlock(prisma: PrismaClient) {
 			`Checking video ${index}/${recentOrUnreadPosts.length} (${post.videoId})...`
 		);
 		const sbStatus = await getFullVideoSponsorBlockSegments(post.videoId);
-		if (sbStatus != post.sponsorBlockStatus) {
-			await prisma.video.update({
-				where: { videoId: post.videoId },
-				data: { sponsorBlockStatus: sbStatus }
-			});
+		if (sbStatus.success) {
+			if (sbStatus.sponsorBlock != post.sponsorBlockStatus) {
+				await prisma.video.update({
+					where: { videoId: post.videoId },
+					data: { sponsorBlockStatus: sbStatus.sponsorBlock }
+				});
+			}
+		} else {
+			console.log(
+				`Failed to fetch SponsorBlock status for video ${post.videoId} with code ${sbStatus.status}`
+			);
 		}
 		index++;
 	}

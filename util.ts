@@ -51,10 +51,20 @@ export async function getSHA256Hash(input: string) {
 	return hash;
 }
 
+export type SponsorBlockResponse =
+	| {
+			success: false;
+			status: number;
+	  }
+	| {
+			success: true;
+			sponsorBlock: null | "sponsor" | "selfpromo" | "exclusive_access";
+	  };
+
 export async function getFullVideoSponsorBlockSegments(
 	videoId: string,
-	recurseIfError = true
-): Promise<null | "sponsor" | "selfpromo" | "exclusive_access"> {
+	recursionsRemaining = 5
+): Promise<SponsorBlockResponse> {
 	const hash = await getSHA256Hash(videoId);
 	const url = `https://sponsor.ajay.app/api/skipSegments/${hash.slice(
 		0,
@@ -63,17 +73,26 @@ export async function getFullVideoSponsorBlockSegments(
 	const res = await fetch(url);
 	if (res.status == 404) {
 		// Absolutely no segments were found with this hash, don't even need to parse the response
-		return null;
+		return {
+			success: false,
+			status: 404
+		};
 	}
 	const text = await res.text();
 	if (!res.ok) {
 		console.error(url);
 		console.error(text);
-		if (recurseIfError) {
+		if (recursionsRemaining > 0) {
 			await sleep(5000);
-			return await getFullVideoSponsorBlockSegments(videoId, false);
+			return await getFullVideoSponsorBlockSegments(
+				videoId,
+				recursionsRemaining - 1
+			);
 		}
-		throw new Error(`SponsorBlock request error with code ${res.status}`);
+		return {
+			success: false,
+			status: res.status
+		};
 	}
 	const json = JSON.parse(text) as {
 		videoID: string;
@@ -83,7 +102,9 @@ export async function getFullVideoSponsorBlockSegments(
 		}[];
 	}[];
 	const thisVideo = json.find((v) => v.videoID == videoId);
-	return (
-		thisVideo?.segments.sort((a, b) => b.votes - a.votes).at(0)?.category ?? null
-	);
+	return {
+		success: true,
+		sponsorBlock:
+			thisVideo?.segments.sort((a, b) => b.votes - a.votes).at(0)?.category ?? null
+	};
 }
