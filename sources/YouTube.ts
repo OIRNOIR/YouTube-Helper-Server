@@ -345,12 +345,14 @@ export default class YouTube extends Source {
 					console.error(
 						`WARNING: Error fetching SponsorBlock segments for video ${video.id} with status ${res.status}! Skipping this video for now.`
 					);
-					await channels.infoWebhook.send({
-						content: `WARNING: Error fetching SponsorBlock segments for video ${video.id}! Skipping this video for now.`
-					});
 					return "SKIP";
 				})()
 			]);
+			if (sbStatus == "SKIP" && result != "SKIP") {
+				await channels.infoWebhook.send({
+					content: `WARNING: Error fetching SponsorBlock segments for video ${video.id}! Skipping this video for now.`
+				});
+			}
 			if (result == "SKIP" || sbStatus == "SKIP") {
 				console.error(
 					`(${
