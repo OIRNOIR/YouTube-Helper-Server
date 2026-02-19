@@ -74,8 +74,8 @@ export async function getFullVideoSponsorBlockSegments(
 	if (res.status == 404) {
 		// Absolutely no segments were found with this hash, don't even need to parse the response
 		return {
-			success: false,
-			status: 404
+			success: true,
+			sponsorBlock: null
 		};
 	}
 	const text = await res.text();
