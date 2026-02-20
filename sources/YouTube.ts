@@ -180,7 +180,8 @@ export default class YouTube extends Source {
 						});
 					} else if (
 						video.title != existingVideo.title ||
-						(video.duration != null && video.duration != existingVideo.duration)
+						(video.duration != null && video.duration != existingVideo.duration) ||
+						(video.live_status != undefined && existingVideo.type != "stream")
 					) {
 						// Update title and duration
 						const updateArgs: {
@@ -189,7 +190,13 @@ export default class YouTube extends Source {
 						} = {
 							where: { videoId: video.id },
 							data: {
-								title: video.title
+								title: video.title,
+								type:
+									video.live_status != undefined
+										? "stream"
+										: video.url.includes("/shorts/")
+											? "short"
+											: "video"
 							}
 						};
 						if (video.duration != null) updateArgs.data.duration = video.duration;
