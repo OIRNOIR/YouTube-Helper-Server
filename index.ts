@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import process from "node:process";
+import { setTimeout } from "node:timers";
 /* cspell: disable-next-line */
 import { msToShort, splitMessage } from "@oirnoir/util";
 import { PrismaPg } from "@prisma/adapter-pg";
@@ -124,14 +125,12 @@ async function updateFeeds(): Promise<void> {
 }
 
 function feedInterval() {
-	Deno.unrefTimer(
-		setTimeout(
-			() => {
-				feedInterval();
-			},
-			Math.trunc(Math.random() * 300000 + 900000)
-		)
-	); // Minimum of 15 minutes, maximum of 20 minutes
+	setTimeout(
+		() => {
+			feedInterval();
+		},
+		Math.trunc(Math.random() * 300000 + 900000)
+	).unref(); // Minimum of 15 minutes, maximum of 20 minutes
 	updateFeeds(); // No await because we give zero shits about its result or waiting for it to finish
 }
 
