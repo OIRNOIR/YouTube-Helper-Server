@@ -17,7 +17,7 @@
 		"workflow:denojsonfix": "sed -i 's/\"name\": \"youtube-helper\"/\"name\": \"youtube-helper\",\\n\\t\"nodeModulesDir\": \"auto\"/g' ./deno.json"
 	},
 	"imports": {
-		"@biomejs/biome": "npm:@biomejs/biome@2.4.10",
+		"@biomejs/biome": "npm:@biomejs/biome@2.4.11",
 		"@oak/oak": "jsr:@oak/oak@17.2.0",
 		"@oirnoir/util": "jsr:@oirnoir/util@0.0.34",
 		"@prisma/adapter-pg": "npm:@prisma/adapter-pg@7.7.0",
