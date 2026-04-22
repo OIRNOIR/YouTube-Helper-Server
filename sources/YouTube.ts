@@ -89,6 +89,15 @@ export default class YouTube extends Source {
 				console.error(`Channel ${channelURI} has been terminated.`);
 				return;
 			}
+			if (dataRes.stderr.includes("This channel does not exist")) {
+				await channels.infoWebhook.send({
+					content: `Channel \`${channelURI}\` does not exist, according to YouTube.`
+				});
+				console.log(
+					`Channel \`${channelURI}\` does not exist, according to YouTube.`
+				);
+				return;
+			}
 			console.error(dataRes.stderr);
 			console.error(dataRes.error);
 			throw new Error(
