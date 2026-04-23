@@ -11,6 +11,8 @@
 		"github>Omochice/renovate-config:deno"
 	],
 	"minimumReleaseAge": "3 days",
+	"prCreation": "not-pending",
+	"internalChecksFilter": "strict",
 	"packageRules": [
 		{
 			"matchDatasources": ["npm"],
