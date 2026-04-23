@@ -13,14 +13,17 @@ jobs:
     ci:
         name: Check - (${{ matrix.cmds }})
         timeout-minutes: 15
-        runs-on: ubuntu-latest
+        runs-on: debian
         strategy:
             matrix:
                 cmds: ["deno task style:check"]
         steps:
-          - uses: denoland/setup-deno@v2
-            with:
-                cache: true
+          - name: Install Deno
+            run: |
+              apt-get update && apt-get install -y curl unzip
+              curl -fsSL https://deno.land/install.sh | sh
+              # Add Deno to the PATH for subsequent steps
+              echo "$HOME/.deno/bin" >> $GITHUB_PATH
 
           - name: Check out code
             uses: actions/checkout@v6
