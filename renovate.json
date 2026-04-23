@@ -20,7 +20,7 @@
 		},
 		{
 			"matchPackageNames": ["@oirnoir/util"],
-			"minimumReleaseAge": 0
+			"minimumReleaseAge": "0"
 		}
 	]
 }
