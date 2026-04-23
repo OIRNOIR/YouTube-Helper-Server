@@ -10,17 +10,21 @@
 		"workarounds:all",
 		"github>Omochice/renovate-config:deno"
 	],
-	"minimumReleaseAge": "3 days",
 	"prCreation": "not-pending",
 	"internalChecksFilter": "strict",
 	"packageRules": [
+		{
+			"matchPackageNames": ["*"],
+			"minimumReleaseAge": "3 days"
+		},
 		{
 			"matchDatasources": ["npm"],
 			"abandonmentThreshold": "1 year"
 		},
 		{
 			"matchPackageNames": ["@oirnoir/util"],
-			"minimumReleaseAge": "0"
+			"minimumReleaseAge": null,
+			"prCreation": "immediate"
 		}
 	]
 }
