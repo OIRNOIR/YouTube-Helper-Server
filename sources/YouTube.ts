@@ -449,8 +449,8 @@ async function purgeUnsubscribed(
 	);
 	for (const channel of allChannels) {
 		const unsubscribed =
-			Object.keys(subscriptions).findIndex(
-				(s) => s.replace("yt://", "").split("/")[0] == channel
+			subscriptions.findIndex(
+				(s) => s.channel.replace("yt://", "").split("/")[0] == channel
 			) == -1;
 		if (unsubscribed) {
 			const channelVideo = await prisma.video.findFirst({
