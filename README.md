@@ -2,9 +2,9 @@
 
 This is the server for a simple self-hosted client/server setup for YouTube subscriptions.
 
-<img width="1554" height="1054" alt="A view of the YouTube Helper TUI" src="https://github.com/user-attachments/assets/d35599af-aeb0-41bd-8cd7-9c22f8310f9f" />
+![A view of the YouTube Helper TUI](images/yt-helper-demo.png)
 
-This image displays the official [TUI Client](https://github.com/OIRNOIR/YouTube-Helper-Client).
+This image displays the official [TUI Client](https://git.oirnoir.dev/OIRNOIR/YouTube-Helper-Client).
 
 This project started in July 2025 because I got tired of using YouTube's official UI.
 
@@ -40,8 +40,9 @@ This assumes you would like to use Discord for error reporting and info logs.
     - Edit `.env`
         - Replace `INSERT_YOUR_PGSQL_DB_URL_HERE` with the URL you wish to use for your database
     - Add subscriptions to `subscriptions.json`
-        - The format is `yt://CHANNEL_ID/@username`
-        - Add channels you wish to see shorts from to `shorts-whitelist.json`
+        - The format for the keys of the `subscriptions` object is `yt://CHANNEL_ID/@username`
+        - For each, you can either set it to an empty object (`: {}`), which will use the default configuration, or
+            add one or more overrides to set channel-specific settings, in the same format as the default configuration object.
         - As an example, the valid channel `@rossmanngroup` is in the file by default. This is used as an example for the
             format of the config file, and no promotion is intended.
         - Odysee format: `odysee://CLAIMID/@username`
@@ -74,7 +75,7 @@ you control can reach the backend port.
 Once you have configured this, you should configure a supported client.
 
 Currently, the only supported client is:
-- [YouTube Helper Client](https://github.com/OIRNOIR/YouTube-Helper-Client)
+- [YouTube Helper Client](https://git.oirnoir.dev/OIRNOIR/YouTube-Helper-Client)
 
 ## Contributing
 
