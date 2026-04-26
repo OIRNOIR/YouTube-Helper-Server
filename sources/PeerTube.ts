@@ -1,7 +1,8 @@
 import {
 	NEW_UNREAD_THRESHOLD,
 	OLD_VIDEO_ERROR_THRESHOLD,
-	VIDEOS_PER_CHANNEL_SCRAPE_LIMIT
+	VIDEOS_PER_CHANNEL_SCRAPE_LIMIT,
+	type VideoTypeSelector
 } from "../constants.ts";
 import type { PrismaClient, Video } from "../prisma/generated/prisma/client.ts";
 import { Source } from "../Source.ts";
@@ -57,7 +58,7 @@ export default class PeerTube extends Source {
 		i: number,
 		subscriptionsCount: number,
 		_cookiesPath: string,
-		_isShortsWhitelisted: boolean
+		_allowedTypes: VideoTypeSelector
 	) {
 		const parts = channelURI.replace("peertube://", "").split("/");
 		const hostname = parts[0];
@@ -240,8 +241,7 @@ export default class PeerTube extends Source {
 
 	override async postRunTasks(
 		prisma: PrismaClient,
-		subscriptions: string[],
-		_shortsWhitelist: string[]
+		subscriptions: { channel: string; types: VideoTypeSelector }[]
 	): Promise<void> {
 		await purgeUnsubscribed(prisma, subscriptions);
 	}
@@ -249,7 +249,7 @@ export default class PeerTube extends Source {
 
 async function purgeUnsubscribed(
 	prisma: PrismaClient,
-	subscriptions: string[]
+	subscriptions: { channel: string; types: VideoTypeSelector }[]
 ) {
 	console.log("Checking for unsubscribed channels...");
 	const allChannels = new Set(
@@ -263,7 +263,7 @@ async function purgeUnsubscribed(
 		const channelName = splitChannel[0];
 		const unsubscribed =
 			subscriptions.findIndex(
-				(s) => s.replace("peertube://", "") == `${hostname}/${channelName}`
+				(s) => s.channel.replace("peertube://", "") == `${hostname}/${channelName}`
 			) == -1;
 		if (unsubscribed) {
 			const channelVideo = await prisma.video.findFirst({

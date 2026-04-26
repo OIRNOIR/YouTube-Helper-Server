@@ -1,7 +1,8 @@
 import {
 	NEW_UNREAD_THRESHOLD,
 	OLD_VIDEO_ERROR_THRESHOLD,
-	VIDEOS_PER_CHANNEL_SCRAPE_LIMIT
+	VIDEOS_PER_CHANNEL_SCRAPE_LIMIT,
+	type VideoTypeSelector
 } from "../constants.ts";
 import type { PrismaClient, Video } from "../prisma/generated/prisma/client.ts";
 import { Source } from "../Source.ts";
@@ -79,7 +80,7 @@ export default class Odysee extends Source {
 		i: number,
 		subscriptionsCount: number,
 		_cookiesPath: string,
-		_isShortsWhitelisted: boolean
+		_allowedTypes: VideoTypeSelector
 	) {
 		const splitUrl = channelURI.replace("odysee://", "").split("/");
 		const expectedChannelID = splitUrl[0];
@@ -242,8 +243,7 @@ export default class Odysee extends Source {
 
 	override async postRunTasks(
 		prisma: PrismaClient,
-		subscriptions: string[],
-		_shortsWhitelist: string[]
+		subscriptions: { channel: string; types: VideoTypeSelector }[]
 	): Promise<void> {
 		await purgeUnsubscribed(prisma, subscriptions);
 	}
@@ -251,7 +251,7 @@ export default class Odysee extends Source {
 
 async function purgeUnsubscribed(
 	prisma: PrismaClient,
-	subscriptions: string[]
+	subscriptions: { channel: string; types: VideoTypeSelector }[]
 ) {
 	console.log("Checking for unsubscribed channels...");
 	const allChannels = new Set(
@@ -262,7 +262,7 @@ async function purgeUnsubscribed(
 	for (const channel of allChannels) {
 		const unsubscribed =
 			subscriptions.findIndex(
-				(s) => s.replace("odysee://", "").split("/")[0] == channel
+				(s) => s.channel.replace("odysee://", "").split("/")[0] == channel
 			) == -1;
 		if (unsubscribed) {
 			const channelVideo = await prisma.video.findFirst({

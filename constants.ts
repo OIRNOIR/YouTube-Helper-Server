@@ -10,6 +10,17 @@ export type ConfigFile = {
 	port: number;
 };
 
+export type VideoTypeSelector = {
+	videos: boolean;
+	streams: boolean;
+	shorts: boolean;
+};
+
+export type Subscriptions = {
+	defaultOptions: VideoTypeSelector;
+	subscriptions: Record<string, Partial<VideoTypeSelector>>;
+};
+
 export const VIDEOS_PER_CHANNEL_SCRAPE_LIMIT = 10;
 export const NEW_UNREAD_THRESHOLD = 7 * 24 * 60 * 60 * 1000; // Newly scraped videos will not be marked unread if older than this threshold
 

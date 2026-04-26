@@ -3,9 +3,14 @@ import {
 	NEW_UNREAD_THRESHOLD,
 	OLD_VIDEO_ERROR_THRESHOLD,
 	TMP_DIR,
-	VIDEOS_PER_CHANNEL_SCRAPE_LIMIT
+	VIDEOS_PER_CHANNEL_SCRAPE_LIMIT,
+	type VideoTypeSelector
 } from "../constants.ts";
-import type { PrismaClient, Video } from "../prisma/generated/prisma/client.ts";
+import type {
+	PrismaClient,
+	Video,
+	VideoType
+} from "../prisma/generated/prisma/client.ts";
 import { Source } from "../Source.ts";
 import type { Channels } from "../structures/Channels.ts";
 import { execAsync, getFullVideoSponsorBlockSegments } from "../util.ts";
@@ -61,7 +66,7 @@ export default class YouTube extends Source {
 		i: number,
 		subscriptionsCount: number,
 		cookiesPath: string,
-		isShortsWhitelisted: boolean
+		allowedTypes: VideoTypeSelector
 	) {
 		const parts = channelURI.replace("yt://", "").split("/");
 		const channelId = parts[0];
@@ -168,8 +173,19 @@ export default class YouTube extends Source {
 						}
 						continue;
 					}
-					if (!isShortsWhitelisted && video.url.includes("/shorts/")) {
-						// This channel is not shorts whitelisted
+					if (
+						(!allowedTypes.shorts && video.url.includes("/shorts/")) ||
+						(!allowedTypes.streams && video.live_status != undefined)
+					) {
+						// This channel is not shorts or streams whitelisted
+						continue;
+					}
+					if (
+						!allowedTypes.videos &&
+						!video.url.includes("/shorts/") &&
+						video.live_status == undefined
+					) {
+						// This channel is not videos whitelisted
 						continue;
 					}
 					if (existingVideo == undefined) {
@@ -414,18 +430,16 @@ export default class YouTube extends Source {
 
 	override async postRunTasks(
 		prisma: PrismaClient,
-		subscriptions: string[],
-		shortsWhitelist: string[]
+		subscriptions: { channel: string; types: VideoTypeSelector }[]
 	): Promise<void> {
-		await purgeUnsubscribed(prisma, subscriptions, shortsWhitelist);
+		await purgeUnsubscribed(prisma, subscriptions);
 		await checkSponsorBlock(prisma);
 	}
 }
 
 async function purgeUnsubscribed(
 	prisma: PrismaClient,
-	subscriptions: string[],
-	shortsWhitelist: string[]
+	subscriptions: { channel: string; types: VideoTypeSelector }[]
 ) {
 	console.log("Checking for unsubscribed channels...");
 	const allChannels = new Set(
@@ -435,7 +449,7 @@ async function purgeUnsubscribed(
 	);
 	for (const channel of allChannels) {
 		const unsubscribed =
-			subscriptions.findIndex(
+			Object.keys(subscriptions).findIndex(
 				(s) => s.replace("yt://", "").split("/")[0] == channel
 			) == -1;
 		if (unsubscribed) {
@@ -461,46 +475,50 @@ async function purgeUnsubscribed(
 		}
 	}
 	console.log("Done checking for unsubscribed channels!");
-	console.log("Checking for shorts un-whitelisted channels...");
-	const allShortsChannels = new Set(
-		(
-			await prisma.video.findMany({
-				where: { platform: "YouTube", type: "short" }
-			})
-		).map((v) => v.channelId)
-	);
-	for (const channel of allShortsChannels) {
-		const unWhitelisted =
-			shortsWhitelist.findIndex(
-				(s) => s.replace("yt://", "").split("/")[0] == channel
-			) == -1;
-		if (unWhitelisted) {
+	console.log("Checking for un-whitelisted channels...");
+	for (const channel of allChannels) {
+		const typesAllowed: VideoTypeSelector | undefined = subscriptions.find((k) =>
+			k.channel.startsWith(`yt://${channel}`)
+		)?.types;
+		if (typesAllowed == undefined) throw new Error("Could not find this channel");
+		for (const [t] of Object.entries(typesAllowed).filter(
+			([_, v]) => v == false
+		)) {
+			const videoType: VideoType | undefined =
+				t == "videos"
+					? "video"
+					: t == "streams"
+						? "stream"
+						: t == "shorts"
+							? "short"
+							: undefined;
+			if (videoType == undefined) {
+				throw new Error(`Invalid type ${t}`);
+			}
 			const channelVideo = await prisma.video.findFirst({
 				where: {
 					platform: "YouTube",
-					channelId: channel
+					channelId: channel,
+					type: videoType
 				},
 				orderBy: { date: "desc" }
 			});
 			if (channelVideo != null) {
 				console.log(
-					`Channel ${channel} (${channelVideo.username} / ${channelVideo.displayName}) has been removed from the Shorts whitelist. Purging shorts from DB.`
+					`Channel ${channel} (${channelVideo.username} / ${channelVideo.displayName}) has been removed from the ${t} whitelist. Purging ${t} from DB.`
 				);
-			} else {
-				console.log(
-					`Channel ${channel} (unknown) has been removed from the Shorts whitelist. Purging shorts from DB.`
-				);
+				const deleted = await prisma.video.deleteMany({
+					where: {
+						platform: "YouTube",
+						channelId: channel,
+						type: videoType
+					}
+				});
+				console.log(`Deleted ${deleted.count} ${t} from ${channelVideo.username}`);
 			}
-			await prisma.video.deleteMany({
-				where: {
-					platform: "YouTube",
-					channelId: channel,
-					type: "short"
-				}
-			});
 		}
 	}
-	console.log("Done checking for shorts un-whitelisted channels!");
+	console.log("Done checking for un-whitelisted channels!");
 }
 
 async function checkSponsorBlock(prisma: PrismaClient) {

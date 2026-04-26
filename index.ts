@@ -6,7 +6,12 @@ import { setTimeout } from "node:timers";
 import { msToShort, splitMessage } from "@oirnoir/util";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { config as envConfig } from "dotenv";
-import { type ConfigFile, TMP_DIR } from "./constants.ts";
+import {
+	type ConfigFile,
+	type Subscriptions,
+	TMP_DIR,
+	type VideoTypeSelector
+} from "./constants.ts";
 import { PrismaClient } from "./prisma/generated/prisma/client.ts";
 import { Source } from "./Source.ts";
 import { Channels } from "./structures/Channels.ts";
@@ -32,13 +37,7 @@ const configFile: ConfigFile = JSON.parse(
 const channels = new Channels(configFile);
 let currentlyFetching = false;
 
-let subscriptions: string[] = [];
-let shortsWhitelist: string[] = JSON.parse(
-	fs.readFileSync(
-		path.join(__dirname, "config", "shorts-whitelist.json"),
-		"utf-8"
-	)
-) as string[];
+let subscriptions: Subscriptions;
 
 async function updateFeeds(): Promise<void> {
 	const alreadyFetching = currentlyFetching;
@@ -53,13 +52,18 @@ async function updateFeeds(): Promise<void> {
 				path.join(__dirname, "config", "subscriptions.json"),
 				"utf-8"
 			)
-		) as string[];
-		shortsWhitelist = JSON.parse(
-			fs.readFileSync(
-				path.join(__dirname, "config", "shorts-whitelist.json"),
-				"utf-8"
-			)
-		) as string[];
+		) as Subscriptions;
+		const subscriptionsArr: { channel: string; types: VideoTypeSelector }[] =
+			Object.entries(subscriptions.subscriptions).map(([k, v]) => {
+				return {
+					channel: k,
+					types: {
+						videos: v.videos ?? subscriptions.defaultOptions.videos,
+						streams: v.streams ?? subscriptions.defaultOptions.streams,
+						shorts: v.shorts ?? subscriptions.defaultOptions.shorts
+					}
+				};
+			});
 		console.log("Updating yt-dlp");
 		const updateOut = await execAsync("yt-dlp -U");
 		console.log(updateOut.stdout.toString().trim());
@@ -68,7 +72,7 @@ async function updateFeeds(): Promise<void> {
 			console.error(updateOut.error);
 			throw new Error("yt-dlp update error; check console for details");
 		}
-		shuffle(subscriptions);
+		shuffle(subscriptionsArr);
 		const cookiesPath = path.join(__dirname, "config", "cookies.txt");
 		console.log("Loading sources");
 		const sources: Source[] = [];
@@ -83,11 +87,12 @@ async function updateFeeds(): Promise<void> {
 		}
 		console.log("Starting the timer");
 		const start = Date.now();
-		for (let i = 0; i < subscriptions.length; i++) {
-			const channelURI = subscriptions[i];
+		for (let i = 0; i < subscriptionsArr.length; i++) {
+			const channel = subscriptionsArr[i];
+			const channelURI = channel.channel;
 			if (channelURI == undefined) throw new Error("Array doesn't work");
 			console.log(
-				`(${i + 1}/${subscriptions.length}) Fetching channel ${channelURI}...`
+				`(${i + 1}/${subscriptionsArr.length}) Fetching channel ${channelURI}...`
 			);
 			if (fs.existsSync(TMP_DIR)) {
 				fs.rmSync(TMP_DIR, { recursive: true });
@@ -101,9 +106,9 @@ async function updateFeeds(): Promise<void> {
 				channels,
 				channelURI,
 				i,
-				subscriptions.length,
+				subscriptionsArr.length,
 				cookiesPath,
-				shortsWhitelist.find((i) => i == channelURI) != null
+				channel.types
 			);
 		}
 		console.log(
@@ -112,7 +117,7 @@ async function updateFeeds(): Promise<void> {
 			)}. See you soon!`
 		);
 		for (const source of sources) {
-			await source.postRunTasks(prisma, subscriptions, shortsWhitelist);
+			await source.postRunTasks(prisma, subscriptionsArr);
 		}
 	} finally {
 		if (fs.existsSync(TMP_DIR)) {
