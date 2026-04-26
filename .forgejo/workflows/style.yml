@@ -1,5 +1,7 @@
 name: Style
 
+enable-email-notifications: true
+
 permissions: write-all
 
 on:

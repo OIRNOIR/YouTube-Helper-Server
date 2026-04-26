@@ -1,5 +1,7 @@
 name: Type Check
 
+enable-email-notifications: true
+
 permissions: write-all
 
 on:
