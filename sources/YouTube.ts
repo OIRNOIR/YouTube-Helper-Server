@@ -458,7 +458,7 @@ async function purgeUnsubscribed(
 			(v) => v.channelId
 		)
 	);
-	for (const channel of allChannels) {
+	for (const channel of Array.from(allChannels)) {
 		const unsubscribed =
 			subscriptions.findIndex(
 				(s) => s.channel.replace("yt://", "").split("/")[0] == channel
@@ -483,6 +483,7 @@ async function purgeUnsubscribed(
 			await prisma.video.deleteMany({
 				where: { platform: "YouTube", channelId: channel }
 			});
+			allChannels.delete(channel);
 		}
 	}
 	console.log("Done checking for unsubscribed channels!");
