@@ -393,16 +393,27 @@ export default class YouTube extends Source {
 				);
 				continue;
 			}
+			const type =
+				video.live_status != undefined
+					? "stream"
+					: video.url.includes("/shorts/")
+						? "short"
+						: "video";
+
+			if (
+				(!allowedTypes.shorts && type == "short") ||
+				(!allowedTypes.streams && type == "stream") ||
+				(!allowedTypes.videos && type == "video")
+			) {
+				// This channel is not whitelisted
+				continue;
+			}
+
 			const { timestampMS, directVideoData } = result;
 			const newVideoDocument: Video = {
 				videoId: video.id,
 				platform: "YouTube",
-				type:
-					video.live_status != undefined
-						? "stream"
-						: video.url.includes("/shorts/")
-							? "short"
-							: "video",
+				type,
 				duration: directVideoData.duration ?? video.duration ?? null,
 				title: video.title,
 				description: directVideoData.description ?? video.description ?? null,
