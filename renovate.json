@@ -7,8 +7,7 @@
 		"group:monorepos",
 		"group:recommended",
 		"replacements:all",
-		"workarounds:all",
-		"github>Omochice/renovate-config:deno"
+		"workarounds:all"
 	],
 	"internalChecksFilter": "strict",
 	"packageRules": [
