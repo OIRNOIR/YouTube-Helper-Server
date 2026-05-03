@@ -30,4 +30,5 @@ model Video {
 	unread Boolean @default(true)
 	sponsorBlockStatus SponsorBlockStatus?
 	url String
+	isAvailable Boolean @default(true)
 }

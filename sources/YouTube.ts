@@ -22,6 +22,14 @@ interface FullVideoData {
 	duration: null | number; // null for live streams, in seconds
 	url: string; // Use for determining video type
 	timestamp: number; // The timestamp (seconds) the video was posted
+	availability:
+		| "private"
+		| "premium_only"
+		| "subscriber_only"
+		| "needs_auth"
+		| "unlisted"
+		| "public";
+	live_status: "not_live" | "is_live" | "is_upcoming" | "was_live" | "post_live";
 }
 
 interface VideoData {
@@ -65,7 +73,7 @@ export default class YouTube extends Source {
 		channelURI: string,
 		i: number,
 		subscriptionsCount: number,
-		cookiesPath: string,
+		_cookiesPath: string,
 		allowedTypes: VideoTypeSelector
 	) {
 		const parts = channelURI.replace("yt://", "").split("/");
@@ -243,13 +251,13 @@ export default class YouTube extends Source {
 					);
 					// Literally the only thing we care about from this massive amount of data is the release date...
 					const videoDataResFile = `${TMP_DIR}/${Date.now()}.txt`;
-					let videoDataRes = await execAsync(
-						`yt-dlp -J --no-check-formats "https://www.youtube.com/watch?v=${video.id}" > ${videoDataResFile}`
+					const videoDataRes = await execAsync(
+						`yt-dlp -J --no-check-formats --ignore-no-formats-error "https://www.youtube.com/watch?v=${video.id}" > ${videoDataResFile}`
 					);
 					if (videoDataRes.stderr.length > 0 || videoDataRes.error != null) {
 						console.error(videoDataRes.stderr);
 						console.error(videoDataRes.error);
-						if (
+						/*if (
 							videoDataRes.stderr.includes(
 								"Sign in to confirm your age. This video may be inappropriate for some users."
 							) &&
@@ -262,7 +270,7 @@ export default class YouTube extends Source {
 								}/${subscriptionsCount}) [${index}/${newVideos.length}] Retrying video ${video.id} with authentication...`
 							);
 							const attempt2res = await execAsync(
-								`yt-dlp -J --cookies ${cookiesPath} "https://www.youtube.com/watch?v=${video.id}" > ${videoDataResFile}`
+								`yt-dlp -J --cookies ${cookiesPath} --no-check-formats --ignore-no-formats-error "https://www.youtube.com/watch?v=${video.id}" > ${videoDataResFile}`
 							);
 							if (attempt2res.stderr.length > 0 || attempt2res.error != null) {
 								console.error(attempt2res.stderr);
@@ -272,40 +280,6 @@ export default class YouTube extends Source {
 								);
 							}
 							videoDataRes = attempt2res;
-						} else if (
-							videoDataRes.stderr.includes(
-								"We're processing this video. Check back later."
-							)
-						) {
-							// Skip for now
-							console.log(
-								`(${
-									i + 1
-								}/${subscriptionsCount}) [${index}/${newVideos.length}] Video ${video.id} was still processing.`
-							);
-							await channels.infoWebhook.send({
-								content: `Video ${video.id} was still processing.`
-							});
-							return "SKIP";
-						} else if (
-							videoDataRes.stderr.includes(
-								"Join this channel to get access to members-only content like this video, and other exclusive perks."
-							) ||
-							videoDataRes.stderr.includes(
-								"Join this channel to get access to members-only content and other exclusive perks."
-							) ||
-							videoDataRes.stderr.includes("This video requires payment to watch")
-						) {
-							// There is a low chance that the initial --flat-playlist
-							// will fail to return availability information.
-							// Handle this case here.
-							console.log(video);
-							console.log(
-								`(${
-									i + 1
-								}/${subscriptionsCount}) [${index}/${newVideos.length}] Flat playlist fetch failed to retrieve availability information. Video ${video.id} required payment.`
-							);
-							return "SKIP";
 						} else if (
 							videoDataRes.stderr.includes("This live event will begin in")
 						) {
@@ -319,23 +293,23 @@ export default class YouTube extends Source {
 								}/${subscriptionsCount}) [${index}/${newVideos.length}] Flat playlist fetch failed to retrieve availability information. Video ${video.id} is a pending livestream.`
 							);
 							return "SKIP";
-						} else if (videoDataRes.stderr.includes("ERROR: ")) {
+						} else */ if (videoDataRes.stderr.includes("ERROR: ")) {
 							throw new Error(
 								"yt-dlp video data scrape error; check console for details"
 							);
-						} else {
-							const timestamp = (
-								JSON.parse(fs.readFileSync(videoDataResFile, "utf8")) as FullVideoData
-							).timestamp;
-							console.log(
-								`(${
-									i + 1
-								}/${subscriptionsCount}) [${index}/${newVideos.length}] There were warnings on this request. Make sure ${timestamp} is the right timestamp for ${video.id}.`
-							);
-							await channels.infoWebhook.send({
-								content: `There were warnings on this request. Make sure ${timestamp} is the right timestamp for ${video.id}.`
-							});
-						}
+						} //else {
+						const timestamp = (
+							JSON.parse(fs.readFileSync(videoDataResFile, "utf8")) as FullVideoData
+						).timestamp;
+						console.log(
+							`(${
+								i + 1
+							}/${subscriptionsCount}) [${index}/${newVideos.length}] There were warnings on this request. Make sure ${timestamp} is the right timestamp for ${video.id}.`
+						);
+						await channels.infoWebhook.send({
+							content: `There were warnings on this request. Make sure ${timestamp} is the right timestamp for ${video.id}.`
+						});
+						//}
 					}
 					const directVideoData = JSON.parse(
 						fs.readFileSync(videoDataResFile, "utf8")
@@ -393,8 +367,11 @@ export default class YouTube extends Source {
 				);
 				continue;
 			}
+			const { timestampMS, directVideoData } = result;
+
 			const type =
-				video.live_status != undefined
+				directVideoData.live_status != undefined &&
+				directVideoData.live_status != "not_live"
 					? "stream"
 					: video.url.includes("/shorts/")
 						? "short"
@@ -409,7 +386,11 @@ export default class YouTube extends Source {
 				continue;
 			}
 
-			const { timestampMS, directVideoData } = result;
+			const isAvailable =
+				(directVideoData.availability == "public" ||
+					directVideoData.availability == "unlisted") &&
+				directVideoData.live_status != "is_upcoming";
+
 			const newVideoDocument: Video = {
 				videoId: video.id,
 				platform: "YouTube",
@@ -421,11 +402,12 @@ export default class YouTube extends Source {
 				username: data.uploader_id,
 				channelId: data.channel_id,
 				date: new Date(timestampMS),
-				isCurrentlyLive: video.live_status == "is_live",
+				isCurrentlyLive: directVideoData.live_status == "is_live",
 				// Mark as read if the newly imported video is a week old
 				unread: Date.now() - timestampMS < NEW_UNREAD_THRESHOLD,
 				sponsorBlockStatus: sbStatus,
-				url: `https://youtu.be/${video.id}`
+				url: `https://youtu.be/${video.id}`,
+				isAvailable
 			};
 			await prisma.video.create({ data: newVideoDocument });
 			if (index >= VIDEOS_PER_CHANNEL_SCRAPE_LIMIT) {
