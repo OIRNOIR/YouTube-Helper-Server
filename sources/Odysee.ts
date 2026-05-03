@@ -227,7 +227,8 @@ export default class Odysee extends Source {
 				unread: Date.now() - timestampMS < NEW_UNREAD_THRESHOLD,
 				sponsorBlockStatus: null,
 				/** cspell: disable-next-line */
-				url: video.permanent_url.replace("lbry://", "https://odysee.com/")
+				url: video.permanent_url.replace("lbry://", "https://odysee.com/"),
+				isAvailable: true
 			};
 			await prisma.video.create({ data: newVideoDocument });
 			if (index >= VIDEOS_PER_CHANNEL_SCRAPE_LIMIT) {
