@@ -36,8 +36,7 @@ interface VideoData {
 	id: string;
 	title: string;
 	description?: string; // Absent for shorts
-	live_status?: "is_live" | "was_live" | "is_upcoming";
-	availability?: null | "subscriber_only" | "premium_only";
+	live_status?: "is_live" | "was_live" | "is_upcoming" | "post_live";
 	duration?: null | number; // Undefined for shorts, null for live streams, in seconds
 	url: string; // Use for determining video type
 }
@@ -164,23 +163,7 @@ export default class YouTube extends Source {
 		await prisma.$transaction(async (tx) => {
 			for (const playlist of data.entries) {
 				for (const video of playlist.entries) {
-					if (
-						video.availability == "subscriber_only" ||
-						video.availability == "premium_only" ||
-						video.live_status == "is_upcoming"
-					) {
-						// yt-dlp -J seemingly errors for all of these
-						// so we can't collect additional info just yet
-						continue;
-					}
 					const existingVideo = existingVideoMap.get(video.id);
-					if (video.live_status == "was_live" && video.duration == null) {
-						// Video is either broken or still processing
-						if (existingVideo != undefined) {
-							await tx.video.delete({ where: { videoId: video.id } });
-						}
-						continue;
-					}
 					if (
 						(!allowedTypes.shorts && video.url.includes("/shorts/")) ||
 						(!allowedTypes.streams && video.live_status != undefined)
@@ -196,7 +179,29 @@ export default class YouTube extends Source {
 						// This channel is not videos whitelisted
 						continue;
 					}
+					if (video.live_status == "was_live" && video.duration == null) {
+						// Video is either broken or still processing
+						if (existingVideo != undefined) {
+							await tx.video.update({
+								where: { videoId: video.id },
+								data: {
+									isAvailable: false,
+									isCurrentlyLive: false
+								}
+							});
+						}
+						continue;
+					}
 					if (existingVideo == undefined) {
+						newVideos.push(video);
+					} else if (
+						!existingVideo.isAvailable &&
+						video.live_status != "is_upcoming" &&
+						video.live_status != "post_live" &&
+						Date.now() - existingVideo.date.getTime() < NEW_UNREAD_THRESHOLD
+					) {
+						// Unavailable videos should be re-checked
+						await tx.video.delete({ where: { videoId: video.id } });
 						newVideos.push(video);
 					} else if (
 						video.live_status != "is_live" &&
@@ -208,7 +213,8 @@ export default class YouTube extends Source {
 							data: {
 								title: video.title,
 								duration: video.duration,
-								isCurrentlyLive: false
+								isCurrentlyLive: false,
+								isAvailable: video.live_status != "post_live"
 							}
 						});
 					} else if (
@@ -386,7 +392,8 @@ export default class YouTube extends Source {
 			const isAvailable =
 				(directVideoData.availability == "public" ||
 					directVideoData.availability == "unlisted") &&
-				directVideoData.live_status != "is_upcoming";
+				directVideoData.live_status != "is_upcoming" &&
+				directVideoData.live_status != "post_live";
 
 			const newVideoDocument: Video = {
 				videoId: video.id,
