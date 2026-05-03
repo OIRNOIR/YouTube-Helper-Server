@@ -198,9 +198,10 @@ export default class YouTube extends Source {
 						!existingVideo.isAvailable &&
 						video.live_status != "is_upcoming" &&
 						video.live_status != "post_live" &&
-						Date.now() - existingVideo.date.getTime() < NEW_UNREAD_THRESHOLD
+						Date.now() - existingVideo.date.getTime() < NEW_UNREAD_THRESHOLD &&
+						existingVideo.unread
 					) {
-						// Unavailable videos should be re-checked
+						// Unavailable videos should be re-checked... but only if they're marked unread
 						await tx.video.delete({ where: { videoId: video.id } });
 						newVideos.push(video);
 					} else if (
