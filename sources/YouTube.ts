@@ -306,9 +306,6 @@ export default class YouTube extends Source {
 								i + 1
 							}/${subscriptionsCount}) [${index}/${newVideos.length}] There were warnings on this request. Make sure ${timestamp} is the right timestamp for ${video.id}.`
 						);
-						await channels.infoWebhook.send({
-							content: `There were warnings on this request. Make sure ${timestamp} is the right timestamp for ${video.id}.`
-						});
 						//}
 					}
 					const directVideoData = JSON.parse(
