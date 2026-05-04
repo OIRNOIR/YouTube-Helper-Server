@@ -98,7 +98,7 @@ export class ContentServer {
 					};
 				}
 			}
-			if (config.showSubscriberOnly) {
+			if (!config.showSubscriberOnly) {
 				filter.NOT = {
 					availability: "subscriber_only"
 				};
