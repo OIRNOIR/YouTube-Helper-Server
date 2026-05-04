@@ -112,8 +112,6 @@ export class ContentServer {
 					take: limit,
 					orderBy: { date: "desc" }
 				});
-				console.log(filter);
-				console.log(documentsRaw[4]);
 			} else {
 				const allVideos = await prisma.video.findMany({
 					where: filter,
