@@ -453,7 +453,7 @@ async function purgeUnsubscribed(
 	prisma: PrismaClient,
 	subscriptions: { channel: string; types: VideoTypeSelector }[]
 ) {
-	console.log("Checking for unsubscribed channels...");
+	console.log("[YouTube] Checking for unsubscribed channels...");
 	const allChannels = new Set(
 		(await prisma.video.findMany({ where: { platform: "YouTube" } })).map(
 			(v) => v.channelId
@@ -474,11 +474,11 @@ async function purgeUnsubscribed(
 			});
 			if (channelVideo != null) {
 				console.log(
-					`Channel ${channel} (${channelVideo.username} / ${channelVideo.displayName}) has been unsubscribed. Purging from DB.`
+					`[YouTube] Channel ${channel} (${channelVideo.username} / ${channelVideo.displayName}) has been unsubscribed. Purging from DB.`
 				);
 			} else {
 				console.log(
-					`Channel ${channel} (unknown) has been unsubscribed. Purging from DB.`
+					`[YouTube] Channel ${channel} (unknown) has been unsubscribed. Purging from DB.`
 				);
 			}
 			await prisma.video.deleteMany({
@@ -487,8 +487,8 @@ async function purgeUnsubscribed(
 			allChannels.delete(channel);
 		}
 	}
-	console.log("Done checking for unsubscribed channels!");
-	console.log("Checking for un-whitelisted channels...");
+	console.log("[YouTube] Done checking for unsubscribed channels!");
+	console.log("[YouTube] Checking for un-whitelisted channels...");
 	for (const channel of allChannels) {
 		const typesAllowed: VideoTypeSelector | undefined = subscriptions.find((k) =>
 			k.channel.startsWith(`yt://${channel}`)
@@ -518,7 +518,7 @@ async function purgeUnsubscribed(
 			});
 			if (channelVideo != null) {
 				console.log(
-					`Channel ${channel} (${channelVideo.username} / ${channelVideo.displayName}) has been removed from the ${t} whitelist. Purging ${t} from DB.`
+					`[YouTube] Channel ${channel} (${channelVideo.username} / ${channelVideo.displayName}) has been removed from the ${t} whitelist. Purging ${t} from DB.`
 				);
 				const deleted = await prisma.video.deleteMany({
 					where: {
@@ -527,15 +527,17 @@ async function purgeUnsubscribed(
 						type: videoType
 					}
 				});
-				console.log(`Deleted ${deleted.count} ${t} from ${channelVideo.username}`);
+				console.log(
+					`[YouTube] Deleted ${deleted.count} ${t} from ${channelVideo.username}`
+				);
 			}
 		}
 	}
-	console.log("Done checking for un-whitelisted channels!");
+	console.log("[YouTube] Done checking for un-whitelisted channels!");
 }
 
 async function checkSponsorBlock(prisma: PrismaClient) {
-	console.log("Checking SponsorBlock information...");
+	console.log("[YouTube] Checking SponsorBlock information...");
 	const recentOrUnreadPosts = await prisma.video.findMany({
 		where: {
 			OR: [
@@ -550,7 +552,7 @@ async function checkSponsorBlock(prisma: PrismaClient) {
 	let index = 1;
 	for (const post of recentOrUnreadPosts) {
 		console.log(
-			`Checking video ${index}/${recentOrUnreadPosts.length} (${post.videoId})...`
+			`[YouTube] Checking video ${index}/${recentOrUnreadPosts.length} (${post.videoId})...`
 		);
 		const sbStatus = await getFullVideoSponsorBlockSegments(post.videoId);
 		if (sbStatus.success) {
@@ -562,10 +564,10 @@ async function checkSponsorBlock(prisma: PrismaClient) {
 			}
 		} else {
 			console.log(
-				`Failed to fetch SponsorBlock status for video ${post.videoId} with code ${sbStatus.status}`
+				`[YouTube] Failed to fetch SponsorBlock status for video ${post.videoId} with code ${sbStatus.status}`
 			);
 		}
 		index++;
 	}
-	console.log("Done checking SponsorBlock information!");
+	console.log("[YouTube] Done checking SponsorBlock information!");
 }

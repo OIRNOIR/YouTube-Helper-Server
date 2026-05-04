@@ -284,7 +284,7 @@ async function purgeUnsubscribed(
 	prisma: PrismaClient,
 	subscriptions: { channel: string; types: VideoTypeSelector }[]
 ) {
-	console.log("Checking for unsubscribed channels...");
+	console.log("[Odysee] Checking for unsubscribed channels...");
 	const allChannels = new Set(
 		(await prisma.video.findMany({ where: { platform: "Odysee" } })).map(
 			(v) => v.channelId
@@ -305,11 +305,11 @@ async function purgeUnsubscribed(
 			});
 			if (channelVideo != null) {
 				console.log(
-					`Channel ${channel} (${channelVideo.username} / ${channelVideo.displayName}) has been unsubscribed. Purging from DB.`
+					`[Odysee] Channel ${channel} (${channelVideo.username} / ${channelVideo.displayName}) has been unsubscribed. Purging from DB.`
 				);
 			} else {
 				console.log(
-					`Channel ${channel} (unknown) has been unsubscribed. Purging from DB.`
+					`[Odysee] Channel ${channel} (unknown) has been unsubscribed. Purging from DB.`
 				);
 			}
 			await prisma.video.deleteMany({
@@ -317,8 +317,8 @@ async function purgeUnsubscribed(
 			});
 		}
 	}
-	console.log("Done checking for unsubscribed channels!");
-	console.log("Checking for un-whitelisted channels...");
+	console.log("[Odysee] Done checking for unsubscribed channels!");
+	console.log("[Odysee] Checking for un-whitelisted channels...");
 	for (const channel of allChannels) {
 		const typesAllowed: VideoTypeSelector | undefined = subscriptions.find((k) =>
 			k.channel.startsWith(`odysee://${channel}`)
@@ -348,7 +348,7 @@ async function purgeUnsubscribed(
 			});
 			if (channelVideo != null) {
 				console.log(
-					`Channel ${channel} (${channelVideo.username} / ${channelVideo.displayName}) has been removed from the ${t} whitelist. Purging ${t} from DB.`
+					`[Odysee] Channel ${channel} (${channelVideo.username} / ${channelVideo.displayName}) has been removed from the ${t} whitelist. Purging ${t} from DB.`
 				);
 				const deleted = await prisma.video.deleteMany({
 					where: {
@@ -357,9 +357,11 @@ async function purgeUnsubscribed(
 						type: videoType
 					}
 				});
-				console.log(`Deleted ${deleted.count} ${t} from ${channelVideo.username}`);
+				console.log(
+					`[Odysee] Deleted ${deleted.count} ${t} from ${channelVideo.username}`
+				);
 			}
 		}
 	}
-	console.log("Done checking for un-whitelisted channels!");
+	console.log("[Odysee] Done checking for un-whitelisted channels!");
 }
