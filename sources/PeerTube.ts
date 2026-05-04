@@ -20,6 +20,9 @@ interface VideoListing {
 		name: string;
 		displayName: string;
 	};
+	privacy: {
+		label: "Public" | "Unlisted" | "Private" | "Internal" | "Password protected";
+	};
 }
 
 interface VideoData {
@@ -36,6 +39,9 @@ interface VideoData {
 	channel: {
 		name: string;
 		displayName: string;
+	};
+	privacy: {
+		label: "Public" | "Unlisted" | "Private" | "Internal" | "Password protected";
 	};
 }
 
@@ -226,7 +232,12 @@ export default class PeerTube extends Source {
 				unread: Date.now() - timestampMS < NEW_UNREAD_THRESHOLD,
 				sponsorBlockStatus: null,
 				url: video.url,
-				isAvailable: true
+				availability:
+					video.privacy.label == "Public"
+						? "public"
+						: video.privacy.label == "Unlisted"
+							? "unlisted"
+							: "private"
 			};
 			await prisma.video.create({ data: newVideoDocument });
 			if (index >= VIDEOS_PER_CHANNEL_SCRAPE_LIMIT) {

@@ -30,6 +30,7 @@ interface FullVideoData {
 		| "unlisted"
 		| "public";
 	live_status: "not_live" | "is_live" | "is_upcoming" | "was_live" | "post_live";
+	formats: unknown[];
 }
 
 interface VideoData {
@@ -185,7 +186,7 @@ export default class YouTube extends Source {
 							await tx.video.update({
 								where: { videoId: video.id },
 								data: {
-									isAvailable: false,
+									availability: "processing",
 									isCurrentlyLive: false
 								}
 							});
@@ -195,7 +196,8 @@ export default class YouTube extends Source {
 					if (existingVideo == undefined) {
 						newVideos.push(video);
 					} else if (
-						!existingVideo.isAvailable &&
+						existingVideo.availability != "public" &&
+						existingVideo.availability != "unlisted" &&
 						video.live_status != "is_upcoming" &&
 						video.live_status != "post_live" &&
 						existingVideo.unread
@@ -214,7 +216,10 @@ export default class YouTube extends Source {
 								title: video.title,
 								duration: video.duration,
 								isCurrentlyLive: false,
-								isAvailable: video.live_status != "post_live"
+								availability:
+									video.live_status == "post_live"
+										? "processing"
+										: existingVideo.availability
 							}
 						});
 					} else if (
@@ -389,11 +394,18 @@ export default class YouTube extends Source {
 				continue;
 			}
 
-			const isAvailable =
-				(directVideoData.availability == "public" ||
-					directVideoData.availability == "unlisted") &&
-				directVideoData.live_status != "is_upcoming" &&
-				directVideoData.live_status != "post_live";
+			const availability: Video["availability"] =
+				directVideoData.availability != "public" &&
+				directVideoData.availability != "unlisted"
+					? directVideoData.availability
+					: directVideoData.live_status == "is_upcoming"
+						? "upcoming_stream"
+						: directVideoData.formats.length == 0 ||
+								directVideoData.live_status == "post_live"
+							? "processing"
+							: directVideoData.availability == "unlisted"
+								? "unlisted"
+								: "public";
 
 			const newVideoDocument: Video = {
 				videoId: video.id,
@@ -411,7 +423,7 @@ export default class YouTube extends Source {
 				unread: Date.now() - timestampMS < NEW_UNREAD_THRESHOLD,
 				sponsorBlockStatus: sbStatus,
 				url: `https://youtu.be/${video.id}`,
-				isAvailable
+				availability
 			};
 			await prisma.video.create({ data: newVideoDocument });
 			if (index >= VIDEOS_PER_CHANNEL_SCRAPE_LIMIT) {

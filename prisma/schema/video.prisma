@@ -22,6 +22,8 @@ enum VideoAvailability {
 	needs_auth
 	unlisted
 	public
+	upcoming_stream
+	processing
 }
 
 model Video {
