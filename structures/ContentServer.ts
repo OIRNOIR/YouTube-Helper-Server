@@ -9,6 +9,7 @@ import {
 	type Video,
 	VideoType
 } from "../prisma/generated/prisma/client.ts";
+import type { VideoAvailability } from "../prisma/generated/prisma/enums.ts";
 
 function logRequest(request: Request, notFound = false) {
 	console.log(
@@ -74,12 +75,21 @@ export class ContentServer {
 				})
 					? 25
 					: Math.min(1000, Math.max(1, Number(limitParam)));
-			const filter: { unread?: boolean; type?: { in: VideoType[] } } = {};
+			const filter: {
+				unread?: boolean;
+				type?: { in: VideoType[] };
+				NOT?: { availability?: VideoAvailability };
+			} = {};
 			if (unreadParam?.toLowerCase() == "true") {
 				filter.unread = true;
 			}
 			if (types.length > 0) {
 				filter.type = { in: types };
+			}
+			if (config.showSubscriberOnly) {
+				filter.NOT = {
+					availability: "subscriber_only"
+				};
 			}
 			let documentsRaw: Video[];
 			if (searchQuery == null) {
