@@ -76,15 +76,27 @@ export class ContentServer {
 					? 25
 					: Math.min(1000, Math.max(1, Number(limitParam)));
 			const filter: {
-				unread?: boolean;
-				type?: { in: VideoType[] };
+				AND?: {
+					unread?: boolean;
+					type?: { in: VideoType[] };
+				};
 				NOT?: { availability?: VideoAvailability };
 			} = {};
 			if (unreadParam?.toLowerCase() == "true") {
-				filter.unread = true;
+				filter.AND = {
+					unread: true
+				};
 			}
 			if (types.length > 0) {
-				filter.type = { in: types };
+				if (filter.AND != undefined) {
+					filter.AND.type = { in: types };
+				} else {
+					filter.AND = {
+						type: {
+							in: types
+						}
+					};
+				}
 			}
 			if (config.showSubscriberOnly) {
 				filter.NOT = {
