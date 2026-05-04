@@ -108,7 +108,8 @@ async function updateFeeds(): Promise<void> {
 				i,
 				subscriptionsArr.length,
 				cookiesPath,
-				channel.types
+				channel.types,
+				configFile.showSubscriberOnly
 			);
 		}
 		console.log(

@@ -64,7 +64,8 @@ export default class PeerTube extends Source {
 		i: number,
 		subscriptionsCount: number,
 		_cookiesPath: string,
-		_allowedTypes: VideoTypeSelector
+		_allowedTypes: VideoTypeSelector,
+		_showSubscriberOnly: boolean
 	) {
 		const parts = channelURI.replace("peertube://", "").split("/");
 		const hostname = parts[0];

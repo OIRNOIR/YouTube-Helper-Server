@@ -12,7 +12,8 @@ export abstract class Source {
 		i: number,
 		subscriptionsCount: number,
 		cookiesPath: string,
-		allowedTypes: VideoTypeSelector
+		allowedTypes: VideoTypeSelector,
+		showSubscriberOnly: boolean
 	): Promise<void>;
 
 	abstract postRunTasks(
