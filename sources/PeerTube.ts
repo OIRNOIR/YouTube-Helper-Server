@@ -264,7 +264,7 @@ async function purgeUnsubscribed(
 	prisma: PrismaClient,
 	subscriptions: { channel: string; types: VideoTypeSelector }[]
 ) {
-	console.log("Checking for unsubscribed channels...");
+	console.log("[PeerTube] Checking for unsubscribed channels...");
 	const allChannels = new Set(
 		(await prisma.video.findMany({ where: { platform: "PeerTube" } })).map(
 			(v) => v.channelId
@@ -288,11 +288,11 @@ async function purgeUnsubscribed(
 			});
 			if (channelVideo != null) {
 				console.log(
-					`Channel ${channel} (${channelVideo.username} / ${channelVideo.displayName}) has been unsubscribed. Purging from DB.`
+					`[PeerTube] Channel ${channel} (${channelVideo.username} / ${channelVideo.displayName}) has been unsubscribed. Purging from DB.`
 				);
 			} else {
 				console.log(
-					`Channel ${channel} (unknown) has been unsubscribed. Purging from DB.`
+					`[PeerTube] Channel ${channel} (unknown) has been unsubscribed. Purging from DB.`
 				);
 			}
 			await prisma.video.deleteMany({
@@ -300,5 +300,5 @@ async function purgeUnsubscribed(
 			});
 		}
 	}
-	console.log("Done checking for unsubscribed channels!");
+	console.log("[PeerTube] Done checking for unsubscribed channels!");
 }
