@@ -15,6 +15,15 @@ enum SponsorBlockStatus {
 	exclusive_access
 }
 
+enum VideoAvailability {
+	private
+	premium_only
+	subscriber_only
+	needs_auth
+	unlisted
+	public
+}
+
 model Video {
 	videoId String @id @unique
 	platform String
@@ -30,5 +39,5 @@ model Video {
 	unread Boolean @default(true)
 	sponsorBlockStatus SponsorBlockStatus?
 	url String
-	isAvailable Boolean @default(true)
+	availability VideoAvailability @default(public)
 }
