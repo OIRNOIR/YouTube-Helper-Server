@@ -4,7 +4,11 @@ import {
 	VIDEOS_PER_CHANNEL_SCRAPE_LIMIT,
 	type VideoTypeSelector
 } from "../constants.ts";
-import type { PrismaClient, Video } from "../prisma/generated/prisma/client.ts";
+import type {
+	PrismaClient,
+	Video,
+	VideoType
+} from "../prisma/generated/prisma/client.ts";
 import { Source } from "../Source.ts";
 import type { Channels } from "../structures/Channels.ts";
 
@@ -41,6 +45,8 @@ interface VideoListing {
 		title: string;
 		video?: {
 			duration: number; // Seconds
+			height: number; // Pixels
+			width: number; // Pixels
 		};
 	};
 }
@@ -80,7 +86,7 @@ export default class Odysee extends Source {
 		i: number,
 		subscriptionsCount: number,
 		_cookiesPath: string,
-		_allowedTypes: VideoTypeSelector,
+		allowedTypes: VideoTypeSelector,
 		_showSubscriberOnly: boolean
 	) {
 		const splitUrl = channelURI.replace("odysee://", "").split("/");
@@ -212,10 +218,33 @@ export default class Odysee extends Source {
 					i + 1
 				}/${subscriptionsCount}) [${index}/${newVideos.length}] Done extracting extended attributes from new video ${video.claim_id}!`
 			);
+			const aspectRatio =
+				video.value.video == undefined
+					? undefined
+					: video.value.video.width / video.value.video.height;
+			const isShort =
+				video.value.video != undefined &&
+				aspectRatio != undefined &&
+				aspectRatio <= 0.8 &&
+				video.value.video?.duration <= 180;
+			const type =
+				video.value.video?.duration == undefined
+					? "stream"
+					: isShort
+						? "short"
+						: "video";
+			if (
+				(!allowedTypes.shorts && type == "short") ||
+				(!allowedTypes.streams && type == "stream") ||
+				(!allowedTypes.videos && type == "video")
+			) {
+				// This type is blacklisted
+				continue;
+			}
 			const newVideoDocument: Video = {
 				videoId: video.claim_id,
 				platform: "Odysee",
-				type: video.value.video?.duration == undefined ? "stream" : "video",
+				type,
 				duration: video.value.video?.duration ?? null,
 				title: video.value.title,
 				description: video.value.description,
@@ -289,4 +318,48 @@ async function purgeUnsubscribed(
 		}
 	}
 	console.log("Done checking for unsubscribed channels!");
+	console.log("Checking for un-whitelisted channels...");
+	for (const channel of allChannels) {
+		const typesAllowed: VideoTypeSelector | undefined = subscriptions.find((k) =>
+			k.channel.startsWith(`odysee://${channel}`)
+		)?.types;
+		if (typesAllowed == undefined) throw new Error("Could not find this channel");
+		for (const [t] of Object.entries(typesAllowed).filter(
+			([_, v]) => v == false
+		)) {
+			const videoType: VideoType | undefined =
+				t == "videos"
+					? "video"
+					: t == "streams"
+						? "stream"
+						: t == "shorts"
+							? "short"
+							: undefined;
+			if (videoType == undefined) {
+				throw new Error(`Invalid type ${t}`);
+			}
+			const channelVideo = await prisma.video.findFirst({
+				where: {
+					platform: "Odysee",
+					channelId: channel,
+					type: videoType
+				},
+				orderBy: { date: "desc" }
+			});
+			if (channelVideo != null) {
+				console.log(
+					`Channel ${channel} (${channelVideo.username} / ${channelVideo.displayName}) has been removed from the ${t} whitelist. Purging ${t} from DB.`
+				);
+				const deleted = await prisma.video.deleteMany({
+					where: {
+						platform: "Odysee",
+						channelId: channel,
+						type: videoType
+					}
+				});
+				console.log(`Deleted ${deleted.count} ${t} from ${channelVideo.username}`);
+			}
+		}
+	}
+	console.log("Done checking for un-whitelisted channels!");
 }
