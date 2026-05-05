@@ -171,6 +171,7 @@ export default class YouTube extends Source {
 						(!allowedTypes.streams && video.live_status != undefined)
 					) {
 						// This channel is not shorts or streams whitelisted
+						console.log("DEBUG NO STREAMS");
 						continue;
 					}
 					if (
@@ -179,6 +180,7 @@ export default class YouTube extends Source {
 						video.live_status == undefined
 					) {
 						// This channel is not videos whitelisted
+						console.log("DEBUG NO VIDEOS");
 						continue;
 					}
 					if (video.live_status == "was_live" && video.duration == null) {
@@ -228,7 +230,9 @@ export default class YouTube extends Source {
 						!existingVideo.isCurrentlyLive
 					) {
 						// Existing livestream should be updated!
+						console.log("DEBUG Updating currently live livestream");
 						if (existingVideo.unread) {
+							console.log("DEBUG Is unread");
 							await tx.video.delete({ where: { videoId: video.id } });
 							newVideos.push(video);
 						} else {
