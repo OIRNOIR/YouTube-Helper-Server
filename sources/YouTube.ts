@@ -224,6 +224,28 @@ export default class YouTube extends Source {
 							}
 						});
 					} else if (
+						video.live_status == "is_live" &&
+						!existingVideo.isCurrentlyLive
+					) {
+						// Existing livestream should be updated!
+						if (existingVideo.unread) {
+							await tx.video.delete({ where: { videoId: video.id } });
+							newVideos.push(video);
+						} else {
+							await tx.video.update({
+								where: { videoId: video.id },
+								data: {
+									title: video.title,
+									duration: video.duration,
+									isCurrentlyLive: false,
+									availability:
+										existingVideo.availability == "upcoming_stream"
+											? "public"
+											: existingVideo.availability
+								}
+							});
+						}
+					} else if (
 						video.title != existingVideo.title ||
 						(video.duration != null && video.duration != existingVideo.duration) ||
 						(video.live_status != undefined && existingVideo.type != "stream")
