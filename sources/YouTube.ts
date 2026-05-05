@@ -166,6 +166,7 @@ export default class YouTube extends Source {
 			for (const playlist of data.entries) {
 				for (const video of playlist.entries) {
 					const existingVideo = existingVideoMap.get(video.id);
+					console.log(video.id);
 					if (
 						(!allowedTypes.shorts && video.url.includes("/shorts/")) ||
 						(!allowedTypes.streams && video.live_status != undefined)
