@@ -237,9 +237,10 @@ export default class YouTube extends Source {
 								data: {
 									title: video.title,
 									duration: video.duration,
-									isCurrentlyLive: false,
+									isCurrentlyLive: true,
 									availability:
-										existingVideo.availability == "upcoming_stream"
+										existingVideo.availability == "upcoming_stream" ||
+										existingVideo.availability == "processing"
 											? "public"
 											: existingVideo.availability
 								}
