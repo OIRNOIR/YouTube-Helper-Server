@@ -18,6 +18,7 @@ export abstract class Source {
 
 	abstract postRunTasks(
 		prisma: PrismaClient,
-		subscriptions: { channel: string; types: VideoTypeSelector }[]
+		subscriptions: { channel: string; types: VideoTypeSelector }[],
+		purgeUnsubscribed: boolean
 	): Promise<void>;
 }

@@ -118,7 +118,11 @@ async function updateFeeds(): Promise<void> {
 			)}. See you soon!`
 		);
 		for (const source of sources) {
-			await source.postRunTasks(prisma, subscriptionsArr);
+			await source.postRunTasks(
+				prisma,
+				subscriptionsArr,
+				configFile.purgeUnsubscribed
+			);
 		}
 	} finally {
 		if (fs.existsSync(TMP_DIR)) {

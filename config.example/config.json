@@ -4,5 +4,6 @@
 	"expectedServerAuthorization": "INSERT_AUTHORIZATION_TOKEN_HERE",
 	"errorPingUser": "INSERT_YOUR_DISCORD_USER_ID_HERE",
 	"port": 16341,
-	"showSubscriberOnly": false
+	"showSubscriberOnly": false,
+	"purgeUnsubscribed": true
 }

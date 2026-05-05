@@ -469,9 +469,12 @@ export default class YouTube extends Source {
 
 	override async postRunTasks(
 		prisma: PrismaClient,
-		subscriptions: { channel: string; types: VideoTypeSelector }[]
+		subscriptions: { channel: string; types: VideoTypeSelector }[],
+		doPurgeUnsubscribed: boolean
 	): Promise<void> {
-		await purgeUnsubscribed(prisma, subscriptions);
+		if (doPurgeUnsubscribed) {
+			await purgeUnsubscribed(prisma, subscriptions);
+		}
 		await checkSponsorBlock(prisma);
 	}
 }

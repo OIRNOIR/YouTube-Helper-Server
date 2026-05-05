@@ -9,6 +9,7 @@ export type ConfigFile = {
 	errorPingUser: string;
 	port: number;
 	showSubscriberOnly: boolean;
+	purgeUnsubscribed: boolean;
 };
 
 export type VideoTypeSelector = {
