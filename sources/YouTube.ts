@@ -22,6 +22,7 @@ interface FullVideoData {
 	duration: null | number; // null for live streams, in seconds
 	url: string; // Use for determining video type
 	timestamp: number; // The timestamp (seconds) the video was posted
+	release_timestamp: null | number; // When the live stream started or will start
 	availability:
 		| "private"
 		| "premium_only"
@@ -178,6 +179,9 @@ export default class YouTube extends Source {
 						!video.url.includes("/shorts/") &&
 						video.live_status == undefined
 					) {
+						console.log(
+							`Skipping video ${video.title} because we aren't video-whitelisted`
+						);
 						// This channel is not videos whitelisted
 						continue;
 					}
@@ -348,6 +352,10 @@ export default class YouTube extends Source {
 					) as FullVideoData;
 					fs.rmSync(videoDataResFile);
 					const timestampMS = directVideoData.timestamp * 1000;
+					const releaseTimestampMS =
+						directVideoData.release_timestamp == null
+							? null
+							: directVideoData.release_timestamp * 1000;
 					if (timestampMS < OLD_VIDEO_ERROR_THRESHOLD) {
 						// This timestamp might not be right! Throw an error to make sure a human reviews it
 						console.error(
@@ -363,7 +371,7 @@ export default class YouTube extends Source {
 							i + 1
 						}/${subscriptionsCount}) [${index}/${newVideos.length}] Done extracting extended attributes from new video ${video.id}!`
 					);
-					return { directVideoData, timestampMS };
+					return { directVideoData, timestampMS, releaseTimestampMS };
 				})(),
 				(async () => {
 					console.log(
@@ -399,7 +407,7 @@ export default class YouTube extends Source {
 				);
 				continue;
 			}
-			const { timestampMS, directVideoData } = result;
+			const { timestampMS, directVideoData, releaseTimestampMS } = result;
 
 			const type =
 				directVideoData.live_status != undefined &&
@@ -442,6 +450,8 @@ export default class YouTube extends Source {
 				username: data.uploader_id,
 				channelId: data.channel_id,
 				date: new Date(timestampMS),
+				releaseDate:
+					releaseTimestampMS == null ? null : new Date(releaseTimestampMS),
 				isCurrentlyLive: directVideoData.live_status == "is_live",
 				// Mark as read if the newly imported video is a week old
 				unread:

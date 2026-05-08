@@ -252,6 +252,7 @@ export default class Odysee extends Source {
 				username: channelInfo.name,
 				channelId: channelId,
 				date: new Date(timestampMS),
+				releaseDate: null,
 				isCurrentlyLive: video.value.video?.duration == undefined,
 				// Mark as read if the newly imported video is a week old
 				unread: Date.now() - timestampMS < NEW_UNREAD_THRESHOLD,

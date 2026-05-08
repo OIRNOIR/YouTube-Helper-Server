@@ -125,7 +125,11 @@ export class ContentServer {
 				documentsRaw = results.slice(skip, skip + limit).map((i) => i.item);
 			}
 			const documents = documentsRaw.map((d) => {
-				return { ...d, timestampMS: d.date?.getTime() };
+				return {
+					...d,
+					timestampMS: d.date.getTime(),
+					releaseTimestampMS: d.releaseDate?.getTime() ?? null
+				};
 			});
 			ctx.response.headers.set("Content-Type", "application/json");
 			ctx.response.body = JSON.stringify({

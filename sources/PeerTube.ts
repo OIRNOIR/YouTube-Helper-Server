@@ -228,6 +228,7 @@ export default class PeerTube extends Source {
 				username: video.channel.name,
 				channelId: channelId,
 				date: new Date(timestampMS),
+				releaseDate: null,
 				isCurrentlyLive: video.isLive,
 				// Mark as read if the newly imported video is a week old
 				unread: Date.now() - timestampMS < NEW_UNREAD_THRESHOLD,

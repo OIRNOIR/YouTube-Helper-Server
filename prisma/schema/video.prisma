@@ -37,6 +37,7 @@ model Video {
 	username String
 	channelId String
 	date DateTime
+	releaseDate DateTime?
 	isCurrentlyLive Boolean
 	unread Boolean @default(true)
 	sponsorBlockStatus SponsorBlockStatus?
