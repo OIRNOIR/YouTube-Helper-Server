@@ -48,7 +48,7 @@ interface PlaylistData {
 	channel_id: string;
 	uploader_id: string; // @UserName
 	entries: VideoData[];
-	webpage_url: string; // The exact url this data was downloaded from. Check if ends with /videos, /stream, or /shorts if need to, this is the only reliable place
+	webpage_url: string; // The exact url this data was downloaded from. Check if ends with /videos, /streams, or /shorts if need to, this is the only reliable place
 }
 
 interface ChannelData {
@@ -148,6 +148,23 @@ export default class YouTube extends Source {
 			});
 		}
 
+		const classifiedPlaylists: (PlaylistData & {
+			type: "video" | "short" | "stream";
+		})[] = data.entries.map((e) => {
+			const type = e.webpage_url.endsWith("/videos")
+				? "video"
+				: e.webpage_url.endsWith("/shorts")
+					? "short"
+					: e.webpage_url.endsWith("/streams")
+						? "stream"
+						: null;
+			if (type == null) throw new Error(`Unknown tab type ${e.webpage_url}`);
+			return {
+				...e,
+				type
+			};
+		});
+
 		const existingVideos = await prisma.video.findMany({
 			where: {
 				channelId
@@ -164,25 +181,15 @@ export default class YouTube extends Source {
 
 		// Update changed videos
 		await prisma.$transaction(async (tx) => {
-			for (const playlist of data.entries) {
+			for (const playlist of classifiedPlaylists) {
 				for (const video of playlist.entries) {
 					const existingVideo = existingVideoMap.get(video.id);
 					if (
-						(!allowedTypes.shorts && video.url.includes("/shorts/")) ||
-						(!allowedTypes.streams && video.live_status != undefined)
+						(!allowedTypes.shorts && playlist.type == "short") ||
+						(!allowedTypes.streams && playlist.type == "stream") ||
+						(!allowedTypes.videos && playlist.type == "video")
 					) {
-						// This channel is not shorts or streams whitelisted
-						continue;
-					}
-					if (
-						!allowedTypes.videos &&
-						!video.url.includes("/shorts/") &&
-						video.live_status == undefined
-					) {
-						console.log(
-							`Skipping video ${video.title} because we aren't video-whitelisted`
-						);
-						// This channel is not videos whitelisted
+						// This channel is not whitelisted for this type
 						continue;
 					}
 					if (video.live_status == "was_live" && video.duration == null) {
