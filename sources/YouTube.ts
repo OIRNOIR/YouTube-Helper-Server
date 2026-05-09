@@ -38,7 +38,6 @@ interface VideoData {
 	id: string;
 	title: string;
 	description?: string; // Absent for shorts
-	live_status?: "is_live" | "was_live" | "is_upcoming" | "post_live";
 	duration?: null | number; // Undefined for shorts, null for live streams, in seconds
 	url: string; // Use for determining video type
 }
@@ -177,7 +176,7 @@ export default class YouTube extends Source {
 			existingVideoMap.set(video.videoId, video);
 		}
 
-		const newVideos: VideoData[] = [];
+		const newVideos: (VideoData & { unread?: boolean })[] = [];
 
 		// Update changed videos
 		await prisma.$transaction(async (tx) => {
@@ -192,75 +191,23 @@ export default class YouTube extends Source {
 						// This channel is not whitelisted for this type
 						continue;
 					}
-					if (video.live_status == "was_live" && video.duration == null) {
-						// Video is either broken or still processing
-						if (existingVideo != undefined) {
-							await tx.video.update({
-								where: { videoId: video.id },
-								data: {
-									availability: "processing",
-									isCurrentlyLive: false
-								}
-							});
-						}
-						continue;
-					}
 					if (existingVideo == undefined) {
 						newVideos.push(video);
 					} else if (
 						existingVideo.availability != "public" &&
 						existingVideo.availability != "unlisted" &&
-						video.live_status != "is_upcoming" &&
-						video.live_status != "post_live" &&
 						existingVideo.unread
 					) {
 						// Unavailable videos should be re-checked... but only if they're marked unread
 						await tx.video.delete({ where: { videoId: video.id } });
 						newVideos.push(video);
-					} else if (
-						video.live_status != "is_live" &&
-						existingVideo.isCurrentlyLive
-					) {
+					} else if (video.duration != null && existingVideo.isCurrentlyLive) {
 						// Existing livestream should be updated!
-						await tx.video.update({
-							where: { videoId: video.id },
-							data: {
-								title: video.title,
-								duration: video.duration,
-								isCurrentlyLive: false,
-								availability:
-									video.live_status == "post_live"
-										? "processing"
-										: existingVideo.availability
-							}
-						});
-					} else if (
-						video.live_status == "is_live" &&
-						!existingVideo.isCurrentlyLive
-					) {
-						// Existing livestream should be updated!
-						if (existingVideo.unread) {
-							await tx.video.delete({ where: { videoId: video.id } });
-							newVideos.push(video);
-						} else {
-							await tx.video.update({
-								where: { videoId: video.id },
-								data: {
-									title: video.title,
-									duration: video.duration,
-									isCurrentlyLive: true,
-									availability:
-										existingVideo.availability == "upcoming_stream" ||
-										existingVideo.availability == "processing"
-											? "public"
-											: existingVideo.availability
-								}
-							});
-						}
+						await tx.video.delete({ where: { videoId: video.id } });
+						newVideos.push({ ...video, unread: existingVideo.unread });
 					} else if (
 						video.title != existingVideo.title ||
-						(video.duration != null && video.duration != existingVideo.duration) ||
-						(video.live_status != undefined && existingVideo.type != "stream")
+						(video.duration != null && video.duration != existingVideo.duration)
 					) {
 						// Update title and duration
 						const updateArgs: {
@@ -270,12 +217,7 @@ export default class YouTube extends Source {
 							where: { videoId: video.id },
 							data: {
 								title: video.title,
-								type:
-									video.live_status != undefined
-										? "stream"
-										: video.url.includes("/shorts/")
-											? "short"
-											: "video"
+								type: playlist.type
 							}
 						};
 						if (video.duration != null) updateArgs.data.duration = video.duration;
