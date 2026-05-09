@@ -404,8 +404,10 @@ export default class YouTube extends Source {
 				isCurrentlyLive: directVideoData.live_status == "is_live",
 				// Mark as read if the newly imported video is a week old
 				unread:
-					Date.now() - timestampMS < NEW_UNREAD_THRESHOLD &&
-					(showSubscriberOnly || availability != "subscriber_only"),
+					video.unread == undefined
+						? Date.now() - timestampMS < NEW_UNREAD_THRESHOLD &&
+							(showSubscriberOnly || availability != "subscriber_only")
+						: video.unread,
 				sponsorBlockStatus: sbStatus,
 				url: `https://youtu.be/${video.id}`,
 				availability
