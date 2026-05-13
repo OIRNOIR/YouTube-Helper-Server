@@ -194,7 +194,7 @@ export default class Odysee extends Source {
 			console.log(
 				`(${
 					i + 1
-				}/${subscriptionsCount}) [${index}/${newVideos.length}] Extracting extended attributes from new video ${video.claim_id}...`
+				}/${subscriptionsCount}) [${index}/${newVideos.length}] Checking video ${video.claim_id}...`
 			);
 			const timestampMS = Number(video.value.release_time) * 1000;
 			if (timestampMS < OLD_VIDEO_ERROR_THRESHOLD) {
@@ -212,11 +212,6 @@ export default class Odysee extends Source {
 				);
 				continue;
 			}
-			console.log(
-				`(${
-					i + 1
-				}/${subscriptionsCount}) [${index}/${newVideos.length}] Done extracting extended attributes from new video ${video.claim_id}!`
-			);
 			const aspectRatio =
 				video.value.video == undefined
 					? undefined
