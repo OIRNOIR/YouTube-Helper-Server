@@ -144,12 +144,6 @@ function feedInterval() {
 }
 
 function main() {
-	prisma.video
-		.updateMany({
-			where: { availability: "subscriber_only" },
-			data: { unread: true }
-		})
-		.then(console.log);
 	new ContentServer(prisma, configFile, logUncaughtException);
 	feedInterval();
 }
