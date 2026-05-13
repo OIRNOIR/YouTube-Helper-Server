@@ -74,8 +74,7 @@ export default class YouTube extends Source {
 		i: number,
 		subscriptionsCount: number,
 		_cookiesPath: string,
-		allowedTypes: VideoTypeSelector,
-		showSubscriberOnly: boolean
+		allowedTypes: VideoTypeSelector
 	) {
 		const parts = channelURI.replace("yt://", "").split("/");
 		const channelId = parts[0];
@@ -403,11 +402,7 @@ export default class YouTube extends Source {
 					releaseTimestampMS == null ? null : new Date(releaseTimestampMS),
 				isCurrentlyLive: directVideoData.live_status == "is_live",
 				// Mark as read if the newly imported video is a week old
-				unread:
-					video.unread == undefined
-						? Date.now() - timestampMS < NEW_UNREAD_THRESHOLD &&
-							(showSubscriberOnly || availability != "subscriber_only")
-						: video.unread,
+				unread: video.unread ?? Date.now() - timestampMS < NEW_UNREAD_THRESHOLD,
 				sponsorBlockStatus: sbStatus,
 				url: `https://youtu.be/${video.id}`,
 				availability

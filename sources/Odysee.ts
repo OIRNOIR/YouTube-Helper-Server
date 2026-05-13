@@ -86,8 +86,7 @@ export default class Odysee extends Source {
 		i: number,
 		subscriptionsCount: number,
 		_cookiesPath: string,
-		allowedTypes: VideoTypeSelector,
-		_showSubscriberOnly: boolean
+		allowedTypes: VideoTypeSelector
 	) {
 		const splitUrl = channelURI.replace("odysee://", "").split("/");
 		const expectedChannelID = splitUrl[0];
