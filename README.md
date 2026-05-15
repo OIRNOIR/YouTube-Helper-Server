@@ -79,4 +79,18 @@ Currently, the only supported client is:
 
 ## Contributing
 
-Feel free to leave issues or pull requests. AI-generated contributions will not be accepted.
+Official development for this program, including test running, etc. happens on a [Forgejo instance](https://git.oirnoir.dev/OIRNOIR/YouTube-Helper-Server)
+which is not open to public account-creation.
+
+Instead, contributions may be proposed (and issues reported) on [Codeberg](https://codeberg.org/OIRNOIR/YouTube-Helper-Server). Please be aware
+that this Codeberg repo does not support automated CI. You should ensure that your code compiles and is correctly styled
+before opening a pull request:
+
+- Run `deno run lint` to format the code and ensure it is free of certain code smells. There should be no errors.
+- Run `deno run typecheck` to ensure that the TypeScript compiles completely. There should be no errors.
+
+Need to make changes to the database schema? Run `deno task db:migrate` to create a SQL migration.
+
+In this repo, the `deno.lock` file should not be committed.
+
+AI-generated contributions will not be accepted.
