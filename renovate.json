@@ -13,7 +13,7 @@
 	"packageRules": [
 		{
 			"matchPackageNames": ["*"],
-			"minimumReleaseAge": "3 days"
+			"minimumReleaseAge": "7 days"
 		},
 		{
 			"matchDatasources": ["npm", "jsr"],
