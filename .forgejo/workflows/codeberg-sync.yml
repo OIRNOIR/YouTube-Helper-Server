@@ -1,0 +1,54 @@
+name: Sync Repository
+
+enable-email-notifications: true
+
+permissions: write-all
+
+on:
+  push:
+    branches: ["main"]
+  schedule:
+    - cron: '*/30 * * * *'
+  workflow_dispatch:
+
+jobs:
+  sync:
+    timeout-minutes: 15
+    runs-on: debian
+    steps:
+      - name: Checkout local code
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Import GPG key
+        run: |
+          echo "${{ secrets.BOT_GPG_PRIVATE_KEY }}" | gpg --batch --import
+
+      - name: Configure Git
+        run: |
+          git config user.name "OIRNOIR.dev Sync Bot"
+          git config user.email "actions@git.oirnoir.dev"
+          git config user.signingkey 5224FDA2E39EE165
+          git config commit.gpgsign true
+
+      - name: Sync and Rebase
+        env:
+          CODEBERG_TOKEN: ${{ secrets.CODEBERG_TOKEN }}
+          CODEBERG_REPO: "codeberg.org/OIRNOIR/YouTube-Helper-Server.git"
+        run: |
+          # Ensure we are on a real branch, not a detached HEAD
+          git checkout main || git checkout -b main
+
+          # Add Codeberg remote
+          git remote add codeberg https://OIRNOIR:${CODEBERG_TOKEN}@${CODEBERG_REPO}
+
+          # Fetch the latest from Codeberg
+          git fetch codeberg main
+
+          # Attempt to rebase local changes onto Codeberg's version
+          git rebase codeberg/main
+
+          # Push the history back to both locations
+          git push origin main
+          git push codeberg main
