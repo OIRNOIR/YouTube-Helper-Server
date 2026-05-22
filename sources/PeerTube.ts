@@ -76,13 +76,12 @@ export default class PeerTube extends Source {
 			throw new Error(`Channel name could not be parsed from url ${channelURI}`);
 		}
 		const channelId = `${channelName}@${hostname}`;
-		const dataRes = await fetch(
-			`https://${hostname}/api/v1/video-channels/${channelName}/videos?count=100&includeScheduledLive=false`
-		);
+		const dataURI = `https://${hostname}/api/v1/video-channels/${channelName}/videos?count=100&includeScheduledLive=false`;
+		const dataRes = await fetch(dataURI);
 		if (!dataRes.ok) {
 			if (dataRes.status >= 500 && dataRes.status <= 599) {
 				console.log(
-					`PeerTube channel ${channelURI} returned a 5xx status code (${dataRes.status}). Skipping for now...`
+					`PeerTube channel ${channelURI} returned a 5xx status code (${dataRes.status}) when fetching ${dataURI}. Skipping for now...`
 				);
 				await channels.infoWebhook.send(
 					`PeerTube channel ${channelURI} returned a 5xx status code (${dataRes.status}). Skipping for now...`
