@@ -8,7 +8,8 @@ on:
   push:
     branches: ["main"]
   schedule:
-    - cron: '*/30 * * * *'
+    # Run every hour, on the half-hour
+    - cron: '30 * * * *'
   workflow_dispatch:
 
 jobs:
