@@ -77,7 +77,20 @@ export default class PeerTube extends Source {
 		}
 		const channelId = `${channelName}@${hostname}`;
 		const dataURI = `https://${hostname}/api/v1/video-channels/${channelName}/videos?count=100&includeScheduledLive=false`;
-		const dataRes = await fetch(dataURI);
+		let dataRes: Response;
+		try {
+			dataRes = await fetch(dataURI);
+		} catch (error) {
+			// The server may have been down?
+			console.error(error);
+			console.log(
+				`Fetch to PeerTube channel ${channelURI} failed. Skipping for now...`
+			);
+			await channels.infoWebhook.send(
+				`Fetch to PeerTube channel ${channelURI} failed. Skipping for now...`
+			);
+			return;
+		}
 		if (!dataRes.ok) {
 			if (dataRes.status >= 500 && dataRes.status <= 599) {
 				console.log(
