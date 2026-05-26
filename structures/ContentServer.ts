@@ -156,22 +156,36 @@ export class ContentServer {
 				unread?: string[];
 			};
 			let modifiedCount = 0;
-			console.log("Starting DB write");
-			if (requestData.read != undefined) {
-				const result = await prisma.video.updateMany({
-					where: { videoId: { in: requestData.read } },
-					data: { unread: false }
-				});
-				modifiedCount += result.count;
+			if (requestData.read != undefined && requestData.read.length > 0) {
+				if (requestData.read.length == 1) {
+					await prisma.video.update({
+						where: { videoId: requestData.read[0] },
+						data: { unread: false }
+					});
+					modifiedCount++;
+				} else {
+					const result = await prisma.video.updateMany({
+						where: { videoId: { in: requestData.read } },
+						data: { unread: false }
+					});
+					modifiedCount += result.count;
+				}
 			}
-			if (requestData.unread != undefined) {
-				const result = await prisma.video.updateMany({
-					where: { videoId: { in: requestData.unread } },
-					data: { unread: true }
-				});
-				modifiedCount += result.count;
+			if (requestData.unread != undefined && requestData.unread.length > 0) {
+				if (requestData.unread.length == 1) {
+					await prisma.video.update({
+						where: { videoId: requestData.unread[0] },
+						data: { unread: false }
+					});
+					modifiedCount++;
+				} else {
+					const result = await prisma.video.updateMany({
+						where: { videoId: { in: requestData.unread } },
+						data: { unread: true }
+					});
+					modifiedCount += result.count;
+				}
 			}
-			console.log("Concluding DB write and returning");
 			ctx.response.headers.set("Content-Type", "application/json");
 			ctx.response.body = JSON.stringify({ modifiedCount });
 			ctx.response.status = 200;
