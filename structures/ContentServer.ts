@@ -156,6 +156,7 @@ export class ContentServer {
 				unread?: string[];
 			};
 			let modifiedCount = 0;
+			console.log("Starting DB write");
 			if (requestData.read != undefined) {
 				const result = await prisma.video.updateMany({
 					where: { videoId: { in: requestData.read } },
@@ -170,6 +171,7 @@ export class ContentServer {
 				});
 				modifiedCount += result.count;
 			}
+			console.log("Concluding DB write and returning");
 			ctx.response.headers.set("Content-Type", "application/json");
 			ctx.response.body = JSON.stringify({ modifiedCount });
 			ctx.response.status = 200;
