@@ -175,7 +175,7 @@ export class ContentServer {
 				if (requestData.unread.length == 1) {
 					await prisma.video.update({
 						where: { videoId: requestData.unread[0] },
-						data: { unread: false }
+						data: { unread: true }
 					});
 					modifiedCount++;
 				} else {
