@@ -44,6 +44,9 @@ async function updateFeeds(): Promise<void> {
 	try {
 		if (currentlyFetching) {
 			console.log("YouTube Helper: Not fetching because it is already fetching");
+			await channels.infoWebhook.send(
+				"YouTube Helper: Not fetching because it is already fetching"
+			);
 			return;
 		}
 		currentlyFetching = true;
