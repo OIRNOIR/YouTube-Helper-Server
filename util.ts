@@ -70,7 +70,7 @@ export async function getFullVideoSponsorBlockSegments(
 		0,
 		4
 	)}?categories=["sponsor","selfpromo","exclusive_access"]&actionType=full`;
-	const res = await fetch(url);
+	const res = await fetch(url, { signal: AbortSignal.timeout(5 * 60 * 1000) }); // Request timeout after 5 minutes please
 	if (res.status == 404) {
 		// Absolutely no segments were found with this hash, don't even need to parse the response
 		return {
