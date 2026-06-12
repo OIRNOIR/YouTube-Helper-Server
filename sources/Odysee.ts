@@ -67,7 +67,8 @@ async function requestBackend(
 				id: Date.now(),
 				method,
 				params
-			})
+			}),
+			signal: AbortSignal.timeout(5 * 60 * 1000)
 		}
 	);
 }

@@ -79,7 +79,9 @@ export default class PeerTube extends Source {
 		const dataURI = `https://${hostname}/api/v1/video-channels/${channelName}/videos?count=100&includeScheduledLive=false`;
 		let dataRes: Response;
 		try {
-			dataRes = await fetch(dataURI);
+			dataRes = await fetch(dataURI, {
+				signal: AbortSignal.timeout(5 * 60 * 1000)
+			});
 		} catch (error) {
 			// The server may have been down?
 			console.error(error);
@@ -178,7 +180,8 @@ export default class PeerTube extends Source {
 			);
 			// Literally the only thing we care about from this massive amount of data is the description...
 			const videoDataRes = await fetch(
-				`https://${hostname}/api/v1/videos/${video.id}`
+				`https://${hostname}/api/v1/videos/${video.id}`,
+				{ signal: AbortSignal.timeout(5 * 60 * 1000) }
 			);
 			if (!videoDataRes.ok) {
 				const text = await videoDataRes.text();
