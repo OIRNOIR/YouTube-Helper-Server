@@ -94,7 +94,7 @@ export default class Odysee extends Source {
 		const expectedChannelID = splitUrl[0];
 		let initialSearchText: string | null = null;
 		const initialSearch = `lbry://${splitUrl[1]}`;
-		for (let i = 0; i < 5; i++) {
+		for (let j = 0; j < 5; j++) {
 			const initialSearchRes = await requestBackend("resolve", {
 				urls: [initialSearch]
 			});
@@ -102,9 +102,9 @@ export default class Odysee extends Source {
 			if (initialSearchRes.ok) break;
 			if (initialSearchRes.status == 524) {
 				console.log(
-					`(${i + 1}/${subscriptionsCount}) Retrying initial fetch due to 524 (${i + 1}/5)...`
+					`(${i + 1}/${subscriptionsCount}) Retrying initial fetch due to 524 (${j + 1}/5)...`
 				);
-				if (i < 4) await sleep(10000);
+				if (j < 4) await sleep(10000);
 			} else {
 				console.error(initialSearchText);
 				console.error(initialSearchRes.statusText);
@@ -128,7 +128,7 @@ export default class Odysee extends Source {
 		const channelInfo = initialSearchJSON.result[initialSearch];
 		const PAGE_SIZE = 50;
 		let text: string | null = null;
-		for (let i = 0; i < 5; i++) {
+		for (let j = 0; j < 5; j++) {
 			const dataRes = await requestBackend("claim_search", {
 				channel_ids: [channelInfo.claim_id],
 				no_totals: true,
@@ -141,9 +141,9 @@ export default class Odysee extends Source {
 			if (!dataRes.ok) {
 				if (dataRes.status == 524) {
 					console.log(
-						`(${i + 1}/${subscriptionsCount}) Retrying claim search fetch due to 524 (${i + 1}/5)...`
+						`(${i + 1}/${subscriptionsCount}) Retrying claim search fetch due to 524 (${j + 1}/5)...`
 					);
-					if (i < 4) await sleep(10000);
+					if (j < 4) await sleep(10000);
 					continue;
 				}
 				const text = await dataRes.text();
