@@ -115,10 +115,10 @@ export default class Odysee extends Source {
 		}
 		if (initialSearchText == null) {
 			console.error(
-				"Odysee channel data scrape error: Ran out of retries. Skipping for now..."
+				"Odysee channel data scrape error: Ran out of retries on resolve. Skipping for now..."
 			);
 			await channels.infoWebhook.send(
-				`Odysee channel data scrape error: Ran out of retries. Skipping \`${channelURI}\` for now...`
+				`Odysee channel data scrape error: Ran out of retries on resolve. Skipping \`${channelURI}\` for now...`
 			);
 			return;
 		}
@@ -127,24 +127,44 @@ export default class Odysee extends Source {
 		) as AccountLookupResponse<typeof initialSearch>;
 		const channelInfo = initialSearchJSON.result[initialSearch];
 		const PAGE_SIZE = 50;
-		const dataRes = await requestBackend("claim_search", {
-			channel_ids: [channelInfo.claim_id],
-			no_totals: true,
-			has_source: true,
-			claim_type: ["stream"],
-			order_by: ["release_time"],
-			page: 1,
-			page_size: PAGE_SIZE
-		});
-		if (!dataRes.ok) {
-			const text = await dataRes.text();
-			console.error(text);
-			console.error(dataRes.statusText);
-			throw new Error(
-				"Odysee channel data scrape error; check console for details"
-			);
+		let text: string | null = null;
+		for (let i = 0; i < 5; i++) {
+			const dataRes = await requestBackend("claim_search", {
+				channel_ids: [channelInfo.claim_id],
+				no_totals: true,
+				has_source: true,
+				claim_type: ["stream"],
+				order_by: ["release_time"],
+				page: 1,
+				page_size: PAGE_SIZE
+			});
+			if (!dataRes.ok) {
+				if (dataRes.status == 524) {
+					console.log(
+						`(${i + 1}/${subscriptionsCount}) Retrying claim search fetch due to 524 (${i + 1}/5)...`
+					);
+					if (i < 4) await sleep(10000);
+					continue;
+				}
+				const text = await dataRes.text();
+				console.error(text);
+				console.error(dataRes.statusText);
+				throw new Error(
+					"Odysee channel data scrape error; check console for details"
+				);
+			}
+			text = await dataRes.text();
+			break;
 		}
-		const text = await dataRes.text();
+		if (text == null) {
+			console.error(
+				"Odysee channel data scrape error: Ran out of retries on claim search. Skipping for now..."
+			);
+			await channels.infoWebhook.send(
+				`Odysee channel data scrape error: Ran out of retries on claim search. Skipping \`${channelURI}\` for now...`
+			);
+			return;
+		}
 		const videoList = JSON.parse(text) as VideoListResponse;
 		const channelId = channelInfo.claim_id;
 		if (channelId != expectedChannelID) {
