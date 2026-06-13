@@ -9,8 +9,7 @@ export abstract class Source {
 		prisma: PrismaClient,
 		channels: Channels,
 		channelURI: string,
-		i: number,
-		subscriptionsCount: number,
+		logPrefix: string,
 		cookiesPath: string,
 		allowedTypes: VideoTypeSelector
 	): Promise<void>;

@@ -104,12 +104,12 @@ async function updateFeeds(): Promise<void> {
 			const source = sources.find((s) => s.identifyURL(channelURI));
 			if (source == undefined)
 				throw new Error(`No source found for ${channelURI}`);
+			const logPrefix = `(${i + 1}/${subscriptionsArr.length}) `;
 			await source.scrapeChannel(
 				prisma,
 				channels,
 				channelURI,
-				i,
-				subscriptionsArr.length,
+				logPrefix,
 				cookiesPath,
 				channel.types
 			);

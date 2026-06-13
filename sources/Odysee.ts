@@ -85,8 +85,7 @@ export default class Odysee extends Source {
 		prisma: PrismaClient,
 		channels: Channels,
 		channelURI: string,
-		i: number,
-		subscriptionsCount: number,
+		logPrefix: string,
 		_cookiesPath: string,
 		allowedTypes: VideoTypeSelector
 	) {
@@ -94,7 +93,7 @@ export default class Odysee extends Source {
 		const expectedChannelID = splitUrl[0];
 		let initialSearchText: string | null = null;
 		const initialSearch = `lbry://${splitUrl[1]}`;
-		for (let j = 0; j < 5; j++) {
+		for (let i = 0; i < 5; i++) {
 			const initialSearchRes = await requestBackend("resolve", {
 				urls: [initialSearch]
 			});
@@ -102,9 +101,9 @@ export default class Odysee extends Source {
 			if (initialSearchRes.ok) break;
 			if (initialSearchRes.status == 524) {
 				console.log(
-					`(${i + 1}/${subscriptionsCount}) Retrying initial fetch due to 524 (${j + 1}/5)...`
+					`${logPrefix}Retrying initial fetch due to 524 (${i + 1}/5)...`
 				);
-				if (j < 4) await sleep(10000);
+				if (i < 4) await sleep(10000);
 			} else {
 				console.error(initialSearchText);
 				console.error(initialSearchRes.statusText);
@@ -128,7 +127,7 @@ export default class Odysee extends Source {
 		const channelInfo = initialSearchJSON.result[initialSearch];
 		const PAGE_SIZE = 50;
 		let text: string | null = null;
-		for (let j = 0; j < 5; j++) {
+		for (let i = 0; i < 5; i++) {
 			const dataRes = await requestBackend("claim_search", {
 				channel_ids: [channelInfo.claim_id],
 				no_totals: true,
@@ -141,9 +140,9 @@ export default class Odysee extends Source {
 			if (!dataRes.ok) {
 				if (dataRes.status == 524) {
 					console.log(
-						`(${i + 1}/${subscriptionsCount}) Retrying claim search fetch due to 524 (${j + 1}/5)...`
+						`${logPrefix}Retrying claim search fetch due to 524 (${i + 1}/5)...`
 					);
-					if (j < 4) await sleep(10000);
+					if (i < 4) await sleep(10000);
 					continue;
 				}
 				const text = await dataRes.text();
@@ -232,9 +231,7 @@ export default class Odysee extends Source {
 		for (const video of newVideos) {
 			index++;
 			console.log(
-				`(${
-					i + 1
-				}/${subscriptionsCount}) [${index}/${newVideos.length}] Checking video ${video.claim_id}...`
+				`${logPrefix}[${index}/${newVideos.length}] Checking video ${video.claim_id}...`
 			);
 			const timestampMS = Number(video.value.release_time) * 1000;
 			if (timestampMS < OLD_VIDEO_ERROR_THRESHOLD) {
@@ -246,9 +243,7 @@ export default class Odysee extends Source {
 					content: `WARNING: Received timestamp ${timestampMS} for video ${video.claim_id}, which is older than expected! Skipping this video for now.`
 				});
 				console.error(
-					`(${
-						i + 1
-					}/${subscriptionsCount}) [${index}/${newVideos.length}] Skipping ${video.claim_id}...`
+					`${logPrefix}[${index}/${newVideos.length}] Skipping ${video.claim_id}...`
 				);
 				continue;
 			}
@@ -298,9 +293,7 @@ export default class Odysee extends Source {
 			await prisma.video.create({ data: newVideoDocument });
 			if (index >= VIDEOS_PER_CHANNEL_SCRAPE_LIMIT) {
 				console.log(
-					`(${
-						i + 1
-					}/${subscriptionsCount}) Skipping the rest of the new videos because there is a ${VIDEOS_PER_CHANNEL_SCRAPE_LIMIT} video limit per channel on new videos per scrape.`
+					`${logPrefix}Skipping the rest of the new videos because there is a ${VIDEOS_PER_CHANNEL_SCRAPE_LIMIT} video limit per channel on new videos per scrape.`
 				);
 				break;
 			}

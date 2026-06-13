@@ -61,8 +61,7 @@ export default class PeerTube extends Source {
 		prisma: PrismaClient,
 		channels: Channels,
 		channelURI: string,
-		i: number,
-		subscriptionsCount: number,
+		logPrefix: string,
 		_cookiesPath: string,
 		_allowedTypes: VideoTypeSelector
 	) {
@@ -174,9 +173,7 @@ export default class PeerTube extends Source {
 		for (const video of newVideos) {
 			index++;
 			console.log(
-				`(${
-					i + 1
-				}/${subscriptionsCount}) [${index}/${newVideos.length}] Extracting extended attributes from new video ${video.uuid}...`
+				`${logPrefix}[${index}/${newVideos.length}] Extracting extended attributes from new video ${video.uuid}...`
 			);
 			// Literally the only thing we care about from this massive amount of data is the description...
 			const videoDataRes = await fetch(
@@ -196,17 +193,13 @@ export default class PeerTube extends Source {
 			if (directVideoData.state.id != 1) {
 				// Skip for now
 				console.log(
-					`(${
-						i + 1
-					}/${subscriptionsCount}) [${index}/${newVideos.length}] Video ${video.uuid} was still processing.`
+					`${logPrefix}[${index}/${newVideos.length}] Video ${video.uuid} was still processing.`
 				);
 				await channels.infoWebhook.send({
 					content: `Video ${video.uuid} was still processing.`
 				});
 				console.error(
-					`(${
-						i + 1
-					}/${subscriptionsCount}) [${index}/${newVideos.length}] Skipping ${video.uuid}...`
+					`${logPrefix}[${index}/${newVideos.length}] Skipping ${video.uuid}...`
 				);
 				continue;
 			}
@@ -220,16 +213,12 @@ export default class PeerTube extends Source {
 					content: `WARNING: Received timestamp ${timestampMS} for video ${video.uuid}, which is older than expected! Skipping this video for now.`
 				});
 				console.error(
-					`(${
-						i + 1
-					}/${subscriptionsCount}) [${index}/${newVideos.length}] Skipping ${video.uuid}...`
+					`${logPrefix}[${index}/${newVideos.length}] Skipping ${video.uuid}...`
 				);
 				continue;
 			}
 			console.log(
-				`(${
-					i + 1
-				}/${subscriptionsCount}) [${index}/${newVideos.length}] Done extracting extended attributes from new video ${video.uuid}!`
+				`${logPrefix}[${index}/${newVideos.length}] Done extracting extended attributes from new video ${video.uuid}!`
 			);
 			const newVideoDocument: Video = {
 				videoId: video.uuid,
@@ -258,9 +247,7 @@ export default class PeerTube extends Source {
 			await prisma.video.create({ data: newVideoDocument });
 			if (index >= VIDEOS_PER_CHANNEL_SCRAPE_LIMIT) {
 				console.log(
-					`(${
-						i + 1
-					}/${subscriptionsCount}) Skipping the rest of the new videos because there is a ${VIDEOS_PER_CHANNEL_SCRAPE_LIMIT} video limit per channel on new videos per scrape.`
+					`${logPrefix}Skipping the rest of the new videos because there is a ${VIDEOS_PER_CHANNEL_SCRAPE_LIMIT} video limit per channel on new videos per scrape.`
 				);
 				break;
 			}

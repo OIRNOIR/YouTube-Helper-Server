@@ -71,8 +71,7 @@ export default class YouTube extends Source {
 		prisma: PrismaClient,
 		channels: Channels,
 		channelURI: string,
-		i: number,
-		subscriptionsCount: number,
+		logPrefix: string,
 		_cookiesPath: string,
 		allowedTypes: VideoTypeSelector
 	) {
@@ -232,9 +231,7 @@ export default class YouTube extends Source {
 			const [result, sbStatus] = await Promise.all([
 				(async () => {
 					console.log(
-						`(${
-							i + 1
-						}/${subscriptionsCount}) [${index}/${newVideos.length}] Extracting extended attributes from new video ${video.id}...`
+						`${logPrefix}[${index}/${newVideos.length}] Extracting extended attributes from new video ${video.id}...`
 					);
 					// Literally the only thing we care about from this massive amount of data is the release date...
 					const videoDataResFile = `${TMP_DIR}/${Date.now()}.txt`;
@@ -289,9 +286,7 @@ export default class YouTube extends Source {
 							JSON.parse(fs.readFileSync(videoDataResFile, "utf8")) as FullVideoData
 						).timestamp;
 						console.log(
-							`(${
-								i + 1
-							}/${subscriptionsCount}) [${index}/${newVideos.length}] There were warnings on this request. Make sure ${timestamp} is the right timestamp for ${video.id}.`
+							`${logPrefix}[${index}/${newVideos.length}] There were warnings on this request. Make sure ${timestamp} is the right timestamp for ${video.id}.`
 						);
 						//}
 					}
@@ -315,24 +310,18 @@ export default class YouTube extends Source {
 						return "SKIP";
 					}
 					console.log(
-						`(${
-							i + 1
-						}/${subscriptionsCount}) [${index}/${newVideos.length}] Done extracting extended attributes from new video ${video.id}!`
+						`${logPrefix}[${index}/${newVideos.length}] Done extracting extended attributes from new video ${video.id}!`
 					);
 					return { directVideoData, timestampMS, releaseTimestampMS };
 				})(),
 				(async () => {
 					console.log(
-						`(${
-							i + 1
-						}/${subscriptionsCount}) [${index}/${newVideos.length}] Fetching full-video SponsorBlock segments from new video ${video.id}...`
+						`${logPrefix}[${index}/${newVideos.length}] Fetching full-video SponsorBlock segments from new video ${video.id}...`
 					);
 					const res = await getFullVideoSponsorBlockSegments(video.id);
 					if (res.success) {
 						console.log(
-							`(${
-								i + 1
-							}/${subscriptionsCount}) [${index}/${newVideos.length}] Done fetching full-video SponsorBlock segments from new video ${video.id}!`
+							`${logPrefix}[${index}/${newVideos.length}] Done fetching full-video SponsorBlock segments from new video ${video.id}!`
 						);
 						return res.sponsorBlock;
 					}
@@ -349,9 +338,7 @@ export default class YouTube extends Source {
 			}
 			if (result == "SKIP" || sbStatus == "SKIP") {
 				console.error(
-					`(${
-						i + 1
-					}/${subscriptionsCount}) [${index}/${newVideos.length}] Skipping ${video.id}...`
+					`${logPrefix}[${index}/${newVideos.length}] Skipping ${video.id}...`
 				);
 				continue;
 			}
@@ -410,9 +397,7 @@ export default class YouTube extends Source {
 			await prisma.video.create({ data: newVideoDocument });
 			if (index >= VIDEOS_PER_CHANNEL_SCRAPE_LIMIT) {
 				console.log(
-					`(${
-						i + 1
-					}/${subscriptionsCount}) Skipping the rest of the new videos because there is a ${VIDEOS_PER_CHANNEL_SCRAPE_LIMIT} video limit per channel on new videos per scrape.`
+					`${logPrefix}Skipping the rest of the new videos because there is a ${VIDEOS_PER_CHANNEL_SCRAPE_LIMIT} video limit per channel on new videos per scrape.`
 				);
 				break;
 			}
