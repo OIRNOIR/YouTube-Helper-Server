@@ -102,7 +102,7 @@ export default class Odysee extends Source {
 			if (initialSearchRes.ok) break;
 			if (initialSearchRes.status == 524) {
 				console.log(
-					`(${i + 1}/${subscriptionsCount}) Retrying initial fetch (${i + 1}/5)...`
+					`(${i + 1}/${subscriptionsCount}) Retrying initial fetch due to 524 (${i + 1}/5)...`
 				);
 				if (i < 4) await sleep(10000);
 			} else {
@@ -114,7 +114,13 @@ export default class Odysee extends Source {
 			}
 		}
 		if (initialSearchText == null) {
-			throw new Error("Odysee channel data scrape error (ran out of tries)");
+			console.error(
+				"Odysee channel data scrape error: Ran out of retries. Skipping for now..."
+			);
+			await channels.infoWebhook.send(
+				`Odysee channel data scrape error: Ran out of retries. Skipping \`${channelURI}\` for now...`
+			);
+			return;
 		}
 		const initialSearchJSON = JSON.parse(
 			initialSearchText
