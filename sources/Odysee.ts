@@ -1,3 +1,4 @@
+import { sleep } from "@oirnoir/util";
 import {
 	NEW_UNREAD_THRESHOLD,
 	OLD_VIDEO_ERROR_THRESHOLD,
@@ -91,17 +92,26 @@ export default class Odysee extends Source {
 	) {
 		const splitUrl = channelURI.replace("odysee://", "").split("/");
 		const expectedChannelID = splitUrl[0];
+		let initialSearchText: string | null = null;
 		const initialSearch = `lbry://${splitUrl[1]}`;
-		const initialSearchRes = await requestBackend("resolve", {
-			urls: [initialSearch]
-		});
-		const initialSearchText = await initialSearchRes.text();
-		if (!initialSearchRes.ok) {
-			console.error(initialSearchText);
-			console.error(initialSearchRes.statusText);
-			throw new Error(
-				"Odysee channel data scrape error; check console for details"
-			);
+		for (let i = 0; i < 5; i++) {
+			const initialSearchRes = await requestBackend("resolve", {
+				urls: [initialSearch]
+			});
+			initialSearchText = await initialSearchRes.text();
+			if (initialSearchRes.ok) break;
+			if (initialSearchRes.status == 524) {
+				if (i < 4) await sleep(10000);
+			} else {
+				console.error(initialSearchText);
+				console.error(initialSearchRes.statusText);
+				throw new Error(
+					"Odysee channel data scrape error; check console for details"
+				);
+			}
+		}
+		if (initialSearchText == null) {
+			throw new Error("Odysee channel data scrape error (ran out of tries)");
 		}
 		const initialSearchJSON = JSON.parse(
 			initialSearchText
