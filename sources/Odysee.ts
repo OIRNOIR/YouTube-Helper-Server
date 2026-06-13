@@ -101,6 +101,9 @@ export default class Odysee extends Source {
 			initialSearchText = await initialSearchRes.text();
 			if (initialSearchRes.ok) break;
 			if (initialSearchRes.status == 524) {
+				console.log(
+					`(${i + 1}/${subscriptionsCount}) Retrying initial fetch (${i + 1}/5)...`
+				);
 				if (i < 4) await sleep(10000);
 			} else {
 				console.error(initialSearchText);
