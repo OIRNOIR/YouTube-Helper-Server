@@ -14,10 +14,10 @@ import { Source } from "../Source.ts";
 import type { Channels } from "../structures/Channels.ts";
 
 interface VideoListResponse {
-	result: {
+	result?: {
 		page: number;
 		page_size: number;
-		items: VideoListing[];
+		items?: VideoListing[];
 	};
 }
 
@@ -165,6 +165,11 @@ export default class Odysee extends Source {
 			return;
 		}
 		const videoList = JSON.parse(text) as VideoListResponse;
+		if (videoList.result?.items == undefined) {
+			console.error(videoList);
+			throw new Error("Badly formatted video list response (Odysee)");
+		}
+		const videoItems = videoList.result.items;
 		const channelId = channelInfo.claim_id;
 		if (channelId != expectedChannelID) {
 			await channels.infoWebhook.send({
@@ -188,7 +193,7 @@ export default class Odysee extends Source {
 
 		// Update changed videos
 		await prisma.$transaction(async (tx) => {
-			for (const video of videoList.result.items) {
+			for (const video of videoItems) {
 				const existingVideo = existingVideoMap.get(video.claim_id);
 				if (existingVideo == undefined) {
 					newVideos.push(video);
