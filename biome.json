@@ -10,10 +10,11 @@
 	"linter": {
 		"enabled": true,
 		"rules": {
-			"recommended": true,
+			"preset": "recommended",
 			"suspicious": {
 				"noDoubleEquals": "off",
-				"noGlobalIsNan": "error"
+				"noGlobalIsNan": "error",
+				"useArraySortCompare": "error"
 			},
 			"correctness": {
 				"noUnusedVariables": "error",
@@ -32,9 +33,6 @@
 				"useNumberNamespace": "error",
 				"noInferrableTypes": "error",
 				"noUselessElse": "error"
-			},
-			"nursery": {
-				"useArraySortCompare": "error"
 			}
 		}
 	},
