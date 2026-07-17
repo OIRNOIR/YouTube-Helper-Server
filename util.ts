@@ -2,6 +2,7 @@ import type { Buffer } from "node:buffer";
 import { type ExecException, type ExecOptions, exec } from "node:child_process";
 import { subtle as subtleCrypto } from "node:crypto";
 import { sleep } from "@oirnoir/util";
+import { verifyString } from "discord.js";
 
 export function execAsync(
 	command: string,
@@ -109,4 +110,42 @@ export async function getFullVideoSponsorBlockSegments(
 		sponsorBlock:
 			thisVideo?.segments.sort((a, b) => b.votes - a.votes).at(0)?.category ?? null
 	};
+}
+
+/**
+ * Splits a string into multiple chunks at a designated character that do not exceed a specific length.
+ */
+export function splitDiscordMessage(
+	textIn: string,
+	{ maxLength = 2_000, char = "\n", prepend = "", append = "" } = {}
+): string[] {
+	const text = verifyString(textIn);
+	if (text.length <= maxLength) return [text];
+	let splitText = [text];
+	if (Array.isArray(char)) {
+		while (char.length > 0 && splitText.some((elem) => elem.length > maxLength)) {
+			const currentChar = char.shift();
+			if (currentChar instanceof RegExp) {
+				splitText = splitText
+					.flatMap((chunk) => chunk.match(currentChar))
+					.filter((c) => c != null);
+			} else {
+				splitText = splitText.flatMap((chunk) => chunk.split(currentChar));
+			}
+		}
+	} else {
+		splitText = text.split(char);
+	}
+	if (splitText.some((elem) => elem.length > maxLength))
+		throw new Error("One or more of the split text items was out of the range.");
+	const messages: string[] = [];
+	let msg = "";
+	for (const chunk of splitText) {
+		if (msg && (msg + char + chunk + append).length > maxLength) {
+			messages.push(msg + append);
+			msg = prepend;
+		}
+		msg += (msg && msg !== prepend ? char : "") + chunk;
+	}
+	return messages.concat(msg).filter((m) => m);
 }

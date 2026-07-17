@@ -3,7 +3,7 @@ import path from "node:path";
 import process from "node:process";
 import { setTimeout } from "node:timers";
 /* cspell: disable-next-line */
-import { msToShort, splitMessage } from "@oirnoir/util";
+import { msToShort } from "@oirnoir/util";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { config as envConfig } from "dotenv";
 import {
@@ -16,7 +16,7 @@ import { PrismaClient } from "./prisma/generated/prisma/client.ts";
 import { Source } from "./Source.ts";
 import { Channels } from "./structures/Channels.ts";
 import { ContentServer } from "./structures/ContentServer.ts";
-import { execAsync, shuffle } from "./util.ts";
+import { execAsync, shuffle, splitDiscordMessage } from "./util.ts";
 
 const __dirname = path.dirname(new URL(import.meta.url).pathname);
 
@@ -166,7 +166,7 @@ async function logUncaughtException(err: unknown): Promise<number> {
 		const text = `${ping} UNCAUGHT (YouTube Helper)\`\`\`Stack:\n${String(
 			stack
 		)}\n\nInspected:\n${Deno.inspect(err)}\n\`\`\``;
-		const msgs = splitMessage(text, { prepend: "```\n", append: "\n```" });
+		const msgs = splitDiscordMessage(text, { prepend: "```\n", append: "\n```" });
 		for (const msg of msgs) {
 			await channels.errWebhook.send(msg);
 		}
