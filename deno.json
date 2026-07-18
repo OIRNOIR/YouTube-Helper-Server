@@ -19,7 +19,7 @@
 	"imports": {
 		"@biomejs/biome": "npm:@biomejs/biome@2.5.3",
 		"@oak/oak": "jsr:@oak/oak@17.2.0",
-		"@oirnoir/util": "jsr:@oirnoir/util@0.0.47",
+		"@oirnoir/util": "jsr:@oirnoir/util@0.0.49",
 		"@prisma/adapter-pg": "npm:@prisma/adapter-pg@7.8.0",
 		"@prisma/client": "npm:@prisma/client@7.8.0",
 		"discord.js": "npm:discord.js@14.26.5",
