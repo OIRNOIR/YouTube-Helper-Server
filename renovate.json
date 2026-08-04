@@ -18,10 +18,6 @@
 		{
 			"matchDatasources": ["npm", "jsr"],
 			"abandonmentThreshold": "1 year"
-		},
-		{
-			"matchPackageNames": ["@oirnoir/util"],
-			"minimumReleaseAge": "1 day"
 		}
 	]
 }
