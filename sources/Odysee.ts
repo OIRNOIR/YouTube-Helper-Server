@@ -92,6 +92,7 @@ export default class Odysee extends Source {
 		const splitUrl = channelURI.replace("odysee://", "").split("/");
 		const expectedChannelID = splitUrl[0];
 		let initialSearchText: string | null = null;
+		/* cspell: disable-next-line */
 		const initialSearch = `lbry://${splitUrl[1]}`;
 		for (let i = 0; i < 5; i++) {
 			const initialSearchRes = await requestBackend("resolve", {
