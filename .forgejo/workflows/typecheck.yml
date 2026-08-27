@@ -20,6 +20,9 @@ jobs:
             matrix:
                 cmds: ["deno task typecheck"]
         steps:
+          - name: Log Deno Version
+            run: deno --version
+
           - name: Check out code
             uses: actions/checkout@v7
             with:
