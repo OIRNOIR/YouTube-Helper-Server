@@ -109,7 +109,7 @@ export default class Odysee extends Source {
 				console.error(initialSearchText);
 				console.error(initialSearchRes.statusText);
 				throw new Error(
-					"Odysee channel data scrape error; check console for details"
+					`Odysee channel data scrape error (${initialSearchRes.status}); check console for details`
 				);
 			}
 		}
@@ -150,7 +150,7 @@ export default class Odysee extends Source {
 				console.error(text);
 				console.error(dataRes.statusText);
 				throw new Error(
-					"Odysee channel data scrape error; check console for details"
+					`Odysee channel data scrape error (${dataRes.status}); check console for details`
 				);
 			}
 			text = await dataRes.text();
