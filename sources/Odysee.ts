@@ -108,9 +108,15 @@ export default class Odysee extends Source {
 			} else {
 				console.error(initialSearchText);
 				console.error(initialSearchRes.statusText);
-				throw new Error(
-					`Odysee channel data scrape error (${initialSearchRes.status}); check console for details`
+				console.error(
+					new Error(
+						`Odysee channel data scrape (resolution) error (${initialSearchRes.status}); check console for details`
+					)
 				);
+				await channels.infoWebhook.send({
+					content: `Fatal Odysee channel data scrape (resolution) error (${initialSearchRes.status}); check console for details. Skipping for now.`
+				});
+				return;
 			}
 		}
 		if (initialSearchText == null) {
@@ -149,9 +155,15 @@ export default class Odysee extends Source {
 				const text = await dataRes.text();
 				console.error(text);
 				console.error(dataRes.statusText);
-				throw new Error(
-					`Odysee channel data scrape error (${dataRes.status}); check console for details`
+				console.error(
+					new Error(
+						`Odysee channel data scrape (claim search) error (${dataRes.status}); check console for details`
+					)
 				);
+				await channels.infoWebhook.send({
+					content: `Fatal Odysee channel data scrape (claim search) error (${dataRes.status}); check console for details. Skipping for now.`
+				});
+				return;
 			}
 			text = await dataRes.text();
 			break;
