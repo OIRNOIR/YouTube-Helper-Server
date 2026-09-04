@@ -107,7 +107,6 @@ export default class Odysee extends Source {
 				if (i < 4) await sleep(10000);
 			} else {
 				console.error(initialSearchText);
-				console.error(initialSearchRes.statusText);
 				console.error(
 					new Error(
 						`Odysee channel data scrape (resolution) error (${initialSearchRes.status}); check console for details`
@@ -154,7 +153,6 @@ export default class Odysee extends Source {
 				}
 				const text = await dataRes.text();
 				console.error(text);
-				console.error(dataRes.statusText);
 				console.error(
 					new Error(
 						`Odysee channel data scrape (claim search) error (${dataRes.status}); check console for details`

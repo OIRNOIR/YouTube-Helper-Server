@@ -104,9 +104,8 @@ export default class PeerTube extends Source {
 			}
 			const text = await dataRes.text();
 			console.error(text);
-			console.error(dataRes.statusText);
 			throw new Error(
-				"PeerTube channel data scrape error; check console for details"
+				`PeerTube channel data scrape error (${dataRes.status}); check console for details`
 			);
 		}
 		const text = await dataRes.text();
@@ -183,9 +182,8 @@ export default class PeerTube extends Source {
 			if (!videoDataRes.ok) {
 				const text = await videoDataRes.text();
 				console.error(text);
-				console.error(videoDataRes.statusText);
 				throw new Error(
-					"PeerTube video data scrape error; check console for details"
+					`PeerTube video data scrape error (${videoDataRes.status}); check console for details`
 				);
 			}
 			const text = await videoDataRes.text();
