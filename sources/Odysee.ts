@@ -22,7 +22,7 @@ interface VideoListResponse {
 }
 
 interface AccountLookupResponse<Name extends string> {
-	result: Record<
+	result?: Record<
 		Name,
 		{
 			claim_id: string;
@@ -130,6 +130,14 @@ export default class Odysee extends Source {
 		const initialSearchJSON = JSON.parse(
 			initialSearchText
 		) as AccountLookupResponse<typeof initialSearch>;
+		if (initialSearchJSON.result == undefined) {
+			console.error(initialSearchJSON);
+			console.error("Odysee result was undefined!");
+			await channels.infoWebhook.send(
+				`Odysee result was undefined. Skipping \`${channelURI}\` for now...`
+			);
+			return;
+		}
 		const channelInfo = initialSearchJSON.result[initialSearch];
 		const PAGE_SIZE = 50;
 		let text: string | null = null;
