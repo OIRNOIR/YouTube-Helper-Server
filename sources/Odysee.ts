@@ -19,6 +19,7 @@ interface VideoListResponse {
 		page_size: number;
 		items?: VideoListing[];
 	};
+	error?: unknown;
 }
 
 interface AccountLookupResponse<Name extends string> {
@@ -35,6 +36,7 @@ interface AccountLookupResponse<Name extends string> {
 			};
 		}
 	>;
+	error?: unknown;
 }
 
 interface VideoListing {
@@ -132,9 +134,9 @@ export default class Odysee extends Source {
 		) as AccountLookupResponse<typeof initialSearch>;
 		if (initialSearchJSON.result == undefined) {
 			console.error(initialSearchJSON);
-			console.error("Odysee result was undefined!");
+			console.error("Odysee account result was undefined!");
 			await channels.infoWebhook.send(
-				`Odysee result was undefined. Skipping \`${channelURI}\` for now...`
+				`Odysee account result was undefined. Skipping \`${channelURI}\` for now...`
 			);
 			return;
 		}
@@ -186,7 +188,13 @@ export default class Odysee extends Source {
 		const videoList = JSON.parse(text) as VideoListResponse;
 		if (videoList.result?.items == undefined) {
 			console.error(videoList);
-			throw new Error("Badly formatted video list response (Odysee)");
+			console.error(
+				`Odysee video list result was undefined. Skipping ${channelURI} for now...`
+			);
+			await channels.infoWebhook.send(
+				`Odysee video list result was undefined. Skipping \`${channelURI}\` for now...`
+			);
+			return;
 		}
 		const videoItems = videoList.result.items;
 		const channelId = channelInfo.claim_id;
