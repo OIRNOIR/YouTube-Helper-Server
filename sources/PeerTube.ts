@@ -4,7 +4,11 @@ import {
 	VIDEOS_PER_CHANNEL_SCRAPE_LIMIT,
 	type VideoTypeSelector
 } from "../constants.ts";
-import type { PrismaClient, Video } from "../prisma/generated/prisma/client.ts";
+import {
+	Platform,
+	type PrismaClient,
+	type Video
+} from "../prisma/generated/prisma/client.ts";
 import { Source } from "../Source.ts";
 import type { Channels } from "../structures/Channels.ts";
 
@@ -53,6 +57,8 @@ interface ChannelData {
 // TODO: Pagination
 
 export default class PeerTube extends Source {
+	platform = Platform.PeerTube;
+
 	override identifyURL(url: string): boolean {
 		return url.startsWith("peertube://");
 	}

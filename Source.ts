@@ -1,8 +1,13 @@
 import type { VideoTypeSelector } from "./constants.ts";
-import type { PrismaClient } from "./prisma/generated/prisma/client.ts";
+import type {
+	Platform,
+	PrismaClient
+} from "./prisma/generated/prisma/client.ts";
 import type { Channels } from "./structures/Channels.ts";
 
 export abstract class Source {
+	abstract platform: Platform;
+
 	abstract identifyURL(url: string): boolean;
 
 	abstract scrapeChannel(

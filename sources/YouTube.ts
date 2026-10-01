@@ -6,10 +6,11 @@ import {
 	VIDEOS_PER_CHANNEL_SCRAPE_LIMIT,
 	type VideoTypeSelector
 } from "../constants.ts";
-import type {
-	PrismaClient,
-	Video,
-	VideoType
+import {
+	Platform,
+	type PrismaClient,
+	type Video,
+	type VideoType
 } from "../prisma/generated/prisma/client.ts";
 import { Source } from "../Source.ts";
 import type { Channels } from "../structures/Channels.ts";
@@ -63,6 +64,8 @@ interface ChannelData {
 // Check if this is still true for channels with only one list
 
 export default class YouTube extends Source {
+	platform = Platform.YouTube;
+
 	override identifyURL(url: string): boolean {
 		return url.startsWith("yt://");
 	}

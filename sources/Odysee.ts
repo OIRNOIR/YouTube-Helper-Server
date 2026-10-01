@@ -5,10 +5,11 @@ import {
 	VIDEOS_PER_CHANNEL_SCRAPE_LIMIT,
 	type VideoTypeSelector
 } from "../constants.ts";
-import type {
-	PrismaClient,
-	Video,
-	VideoType
+import {
+	Platform,
+	type PrismaClient,
+	type Video,
+	type VideoType
 } from "../prisma/generated/prisma/client.ts";
 import { Source } from "../Source.ts";
 import type { Channels } from "../structures/Channels.ts";
@@ -79,6 +80,8 @@ async function requestBackend(
 // TODO: Pagination
 
 export default class Odysee extends Source {
+	platform = Platform.Odysee;
+
 	override identifyURL(url: string): boolean {
 		return url.startsWith("odysee://");
 	}
