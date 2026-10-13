@@ -1,8 +1,6 @@
-name: Type Check
+name: CI Pipeline
 
 enable-email-notifications: true
-
-permissions: write-all
 
 on:
     push:
@@ -12,13 +10,10 @@ on:
     merge_group:
 
 jobs:
-    ci:
-        name: Check - (${{ matrix.cmds }})
+    typecheck:
+        name: Typecheck
         timeout-minutes: 15
         runs-on: deno
-        strategy:
-            matrix:
-                cmds: ["deno task typecheck"]
         steps:
           - name: Log Deno Version
             run: deno --version
@@ -51,7 +46,27 @@ jobs:
                 PRISMA_CLI_BINARY_TARGETS: "debian-openssl-3.0.x"
 
           - name: Run Check
-            run: ${{ matrix.cmds }}
+            run: deno task typecheck
             env:
                 CI: 1
                 PRISMA_CLI_BINARY_TARGETS: "debian-openssl-3.0.x"
+    style:
+        name: Style Check
+        timeout-minutes: 15
+        needs: [typecheck]
+        runs-on: deno
+        steps:
+          - name: Check out code
+            uses: actions/checkout@v7
+            with:
+                submodules: true
+
+          - name: Install dependencies
+            run: deno install --node-modules-dir=auto
+            shell: bash
+
+          - name: Run Check
+            run: deno task style:check
+            env:
+                CI: 1
+
