@@ -2,8 +2,6 @@ name: Sync Repository
 
 enable-email-notifications: true
 
-permissions: write-all
-
 on:
   push:
     branches: ["main"]
@@ -18,7 +16,7 @@ jobs:
     runs-on: debian
     steps:
       - name: Checkout local code
-        uses: actions/checkout@v7
+        uses: actions/checkout@v7.0.1
         with:
           fetch-depth: 0
 
