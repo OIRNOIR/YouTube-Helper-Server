@@ -50,7 +50,7 @@ jobs:
             env:
                 CI: 1
                 PRISMA_CLI_BINARY_TARGETS: "debian-openssl-3.0.x"
-    style:
+    stylecheck:
         name: Style Check
         timeout-minutes: 15
         needs: [typecheck]
