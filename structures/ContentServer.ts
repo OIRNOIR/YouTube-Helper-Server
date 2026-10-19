@@ -196,6 +196,6 @@ export class ContentServer {
 		this.server.use(router.routes());
 		this.server.use(router.allowedMethods());
 
-		this.server.listen({ port: config.port });
+		this.server.listen({ port: config.port, hostname: config.listenHostname });
 	}
 }

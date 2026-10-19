@@ -8,6 +8,7 @@ export type ConfigFile = {
 	expectedServerAuthorization: string;
 	errorPingUser: string;
 	port: number;
+	listenHostname: string;
 	showSubscriberOnly: boolean;
 	purgeUnsubscribed: boolean;
 };
