@@ -21,7 +21,7 @@
 		"@oak/oak": "jsr:@oak/oak@17.2.0",
 		"@oirnoir/util": "jsr:@oirnoir/util@0.0.53",
 		"@prisma/adapter-pg": "npm:@prisma/adapter-pg@7.10.0",
-		"@prisma/client": "npm:@prisma/client@7.10.0",
+		"@prisma/client": "npm:@prisma/client@7.10.1",
 		"discord.js": "npm:discord.js@14.27.0",
 		"dotenv": "npm:dotenv@18.0.8",
 		"fuse.js": "npm:fuse.js@7.5.0",
