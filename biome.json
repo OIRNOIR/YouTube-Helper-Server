@@ -42,6 +42,11 @@
 			"trailingCommas": "none"
 		}
 	},
+	"yaml": {
+		"formatter": {
+			"indentWidth": 4
+		}
+	},
 	"formatter": {
 		"enabled": true,
 		"formatWithErrors": false,

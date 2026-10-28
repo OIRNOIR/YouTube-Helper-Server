@@ -15,56 +15,56 @@ jobs:
         timeout-minutes: 15
         runs-on: deno
         steps:
-          - name: Log Deno Version
-            run: deno --version
+            - name: Log Deno Version
+              run: deno --version
 
-          - name: Check out code
-            uses: actions/checkout@v7.0.1
-            with:
-                submodules: true
+            - name: Check out code
+              uses: actions/checkout@v7.0.1
+              with:
+                  submodules: true
 
-          - name: Set automatic node modules directory
-            run: deno task workflow:denojsonfix
-            shell: bash
+            - name: Set automatic node modules directory
+              run: deno task workflow:denojsonfix
+              shell: bash
 
-          - name: Approve Build Scripts
-            run: deno approve-scripts npm:prisma npm:@prisma/engines
+            - name: Approve Build Scripts
+              run: deno approve-scripts npm:prisma npm:@prisma/engines
 
-          - name: Install dependencies
-            run: deno install
-            shell: bash
-            env:
-                PRISMA_CLI_BINARY_TARGETS: "debian-openssl-3.0.x"
+            - name: Install dependencies
+              run: deno install
+              shell: bash
+              env:
+                  PRISMA_CLI_BINARY_TARGETS: "debian-openssl-3.0.x"
 
-          - name: Set up DATABASE_URL
-            run: echo "DATABASE_URL=postgresql://user:dummy@localhost:5432/dummy_db" >> $GITHUB_ENV
-          
-          - name: Generate Prisma
-            run: deno task -r db:generate
-            shell: bash
-            env:
-                PRISMA_CLI_BINARY_TARGETS: "debian-openssl-3.0.x"
+            - name: Set up DATABASE_URL
+              run: echo "DATABASE_URL=postgresql://user:dummy@localhost:5432/dummy_db" >> $GITHUB_ENV
 
-          - name: Run Check
-            run: deno task typecheck
-            env:
-                CI: 1
-                PRISMA_CLI_BINARY_TARGETS: "debian-openssl-3.0.x"
+            - name: Generate Prisma
+              run: deno task -r db:generate
+              shell: bash
+              env:
+                  PRISMA_CLI_BINARY_TARGETS: "debian-openssl-3.0.x"
+
+            - name: Run Check
+              run: deno task typecheck
+              env:
+                  CI: 1
+                  PRISMA_CLI_BINARY_TARGETS: "debian-openssl-3.0.x"
     stylecheck:
         name: Style Check
         timeout-minutes: 15
         runs-on: deno
         steps:
-          - name: Check out code
-            uses: actions/checkout@v7.0.1
-            with:
-                submodules: true
+            - name: Check out code
+              uses: actions/checkout@v7.0.1
+              with:
+                  submodules: true
 
-          - name: Install dependencies
-            run: deno install --node-modules-dir=auto
-            shell: bash
+            - name: Install dependencies
+              run: deno install --node-modules-dir=auto
+              shell: bash
 
-          - name: Run Check
-            run: deno task style:check
-            env:
-                CI: 1
+            - name: Run Check
+              run: deno task style:check
+              env:
+                  CI: 1

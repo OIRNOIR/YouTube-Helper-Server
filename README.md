@@ -13,49 +13,48 @@ This project started in July 2025 because I got tired of using YouTube's officia
 ## Installation: Linux
 
 This assumes you would like to use Discord for error reporting and info logs.
-
 1. Clone this repository into a directory somewhere on your server, then cd to it.
 
 2. Install dependencies:
-    - [Deno](https://deno.com/)
-        - Can be installed via `pacman` on Arch Linux
-    - [yt-dlp](https://github.com/yt-dlp/yt-dlp/)
-        - This project currently assumes you install the linux binary version, not via a package manager.
-    - [FFmpeg](https://ffmpeg.org/)
-    - PostgreSQL
+   - [Deno](https://deno.com/)
+     - Can be installed via `pacman` on Arch Linux
+     - [yt-dlp](https://github.com/yt-dlp/yt-dlp/)
+       - This project currently assumes you install the linux binary version, not via a package manager.
+       - [FFmpeg](https://ffmpeg.org/)
+         - PostgreSQL
 
 3. Install Deno packages:
-    - `deno install`
+   - `deno install`
 
 4. Create config files
-    - `cp -r config.example config`
-    - `cd config`
-    - Edit `config.json`
-        - Replace `DISCORD_WEBHOOK_FOR_ERRORS` with a Discord webhook you'd like to use to report errors to yourself.
-        - Replace `DISCORD_WEBHOOK_FOR_INFO_LOGS` with a Discord webhook you'd like to use for informational messages.
-        - Replace `INSERT_AUTHORIZATION_TOKEN_HERE` with an authorization token. Probably use a randomized value and keep this safe, you will need this to set up a client.
-        - Replace `INSERT_YOUR_DISCORD_USER_ID_HERE` with your Discord user ID. You will be pinged when an error occurs.
-        - Set the `port` to the port you wish to use.
-    - `cp .env.example .env`
-    - Edit `.env`
-        - Replace `INSERT_YOUR_PGSQL_DB_URL_HERE` with the URL you wish to use for your database
-    - Add subscriptions to `subscriptions.json`
-        - The format for the keys of the `subscriptions` object is `yt://CHANNEL_ID/@username`
-        - For each, you can either set it to an empty object (`: {}`), which will use the default configuration, or
-            add one or more overrides to set channel-specific settings, in the same format as the default configuration object.
-        - As an example, the valid channel `@rossmanngroup` is in the file by default. This is used as an example for the
-            format of the config file, and no promotion is intended.
-        - Odysee format: `odysee://CLAIMID/@username`
-        - Peertube format: `peertube://hostname.tld/username`
-    - If you wish to allow videos that require login, export a cookies.txt to `cookies.txt`.
-        - This can be done via browser extension
-            - One option for Chrome: [Get cookies.txt LOCALLY](https://chrome.google.com/webstore/detail/get-cookiestxt-locally/cclelndahbckbenkjhflpdbgdldlbecc)
-            - One option for Firefox: [cookies.txt](https://addons.mozilla.org/en-US/firefox/addon/cookies-txt/)
-            - Please be careful with what you install. Extension impersonators are a known problem with obtaining cookies.txt.
+   - `cp -r config.example config`
+     - `cd config`
+       - Edit `config.json`
+         - Replace `DISCORD_WEBHOOK_FOR_ERRORS` with a Discord webhook you'd like to use to report errors to yourself.
+         - Replace `DISCORD_WEBHOOK_FOR_INFO_LOGS` with a Discord webhook you'd like to use for informational messages.
+         - Replace `INSERT_AUTHORIZATION_TOKEN_HERE` with an authorization token. Probably use a randomized value and keep this safe, you will need this to set up a client.
+         - Replace `INSERT_YOUR_DISCORD_USER_ID_HERE` with your Discord user ID. You will be pinged when an error occurs.
+         - Set the `port` to the port you wish to use.
+         - `cp .env.example .env`
+           - Edit `.env`
+             - Replace `INSERT_YOUR_PGSQL_DB_URL_HERE` with the URL you wish to use for your database
+             - Add subscriptions to `subscriptions.json`
+               - The format for the keys of the `subscriptions` object is `yt://CHANNEL_ID/@username`
+               - For each, you can either set it to an empty object (`: {}`), which will use the default configuration, or
+                 add one or more overrides to set channel-specific settings, in the same format as the default configuration object.
+               - As an example, the valid channel `@rossmanngroup` is in the file by default. This is used as an example for the
+                 format of the config file, and no promotion is intended.
+               - Odysee format: `odysee://CLAIMID/@username`
+               - Peertube format: `peertube://hostname.tld/username`
+               - If you wish to allow videos that require login, export a cookies.txt to `cookies.txt`.
+                 - This can be done via browser extension
+                 - One option for Chrome: [Get cookies.txt LOCALLY](https://chrome.google.com/webstore/detail/get-cookiestxt-locally/cclelndahbckbenkjhflpdbgdldlbecc)
+                 - One option for Firefox: [cookies.txt](https://addons.mozilla.org/en-US/firefox/addon/cookies-txt/)
+                 - Please be careful with what you install. Extension impersonators are a known problem with obtaining cookies.txt.
 
 5. Migrate, then install the database
-    - `deno task db:deploy`
-    - `deno task db:generate`
+   - `deno task db:deploy`
+     - `deno task db:generate`
 
 ## Running
 
@@ -89,7 +88,6 @@ which is not open to public account-creation.
 Instead, contributions may be proposed on [Codeberg](https://codeberg.org/OIRNOIR/YouTube-Helper-Server). Please be aware
 that this Codeberg repo does not support automated CI. You should ensure that your code compiles and is correctly styled
 before opening a pull request:
-
 - Run `deno run lint` to format the code and ensure it is free of certain code smells. There should be no errors.
 - Run `deno run typecheck` to ensure that the TypeScript compiles completely. There should be no errors.
 
