@@ -47,6 +47,9 @@
 			"indentWidth": 4
 		}
 	},
+	"markdown": {
+		"formatter": { "enabled": false }
+	},
 	"formatter": {
 		"enabled": true,
 		"formatWithErrors": false,
