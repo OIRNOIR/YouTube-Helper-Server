@@ -98,3 +98,5 @@ Need to make changes to the database schema? Run `deno task db:migrate` to creat
 In this repo, the `deno.lock` file should not be committed.
 
 AI-generated contributions will not be accepted.
+
+Useless test commit
