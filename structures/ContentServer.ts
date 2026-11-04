@@ -1,5 +1,5 @@
-import Fastify from "fastify"
 import { isNumeric } from "@oirnoir/util";
+import Fastify from "fastify";
 import FuzzySearch from "fuse.js";
 import type { ConfigFile } from "../constants.ts";
 import {
@@ -38,15 +38,20 @@ export class ContentServer {
 		config: ConfigFile,
 		logUncaughtException: (arg0: unknown) => Promise<number>
 	) {
-		this.server = Fastify({logger: true})
+		this.server = Fastify({ logger: true });
 
-		this.server.get<{Querystring: {page?: string; limit?: string; unread?: string; type?: string; search?: string}}>("/api/feed", async (req, res) => {
+		this.server.get<{
+			Querystring: {
+				page?: string;
+				limit?: string;
+				unread?: string;
+				type?: string;
+				search?: string;
+			};
+		}>("/api/feed", async (req, res) => {
 			logRequest(req);
 
-			if (
-				req.headers.authorization !==
-				config.expectedServerAuthorization
-			) {
+			if (req.headers.authorization !== config.expectedServerAuthorization) {
 				res.status(401).send();
 				return;
 			}
@@ -139,54 +144,54 @@ export class ContentServer {
 				documents: documents.map((d) =>
 					Object.fromEntries(Object.entries(d).filter((e) => !e[0].startsWith("_")))
 				)
-			})
+			});
 		});
 
-		this.server.patch<{Body: {read?: string[]; unread?: string[]}}>("/api/read", async (req, res) => {
-			logRequest(req);
+		this.server.patch<{ Body: { read?: string[]; unread?: string[] } }>(
+			"/api/read",
+			async (req, res) => {
+				logRequest(req);
 
-			if (
-				req.headers.authorization !==
-				config.expectedServerAuthorization
-			) {
-				res.status(401).send();
+				if (req.headers.authorization !== config.expectedServerAuthorization) {
+					res.status(401).send();
+					return;
+				}
+				const requestData = req.body;
+				let modifiedCount = 0;
+				if (requestData.read != undefined && requestData.read.length > 0) {
+					if (requestData.read.length == 1) {
+						await prisma.video.update({
+							where: { videoId: requestData.read[0] },
+							data: { unread: false }
+						});
+						modifiedCount++;
+					} else {
+						const result = await prisma.video.updateMany({
+							where: { videoId: { in: requestData.read } },
+							data: { unread: false }
+						});
+						modifiedCount += result.count;
+					}
+				}
+				if (requestData.unread != undefined && requestData.unread.length > 0) {
+					if (requestData.unread.length == 1) {
+						await prisma.video.update({
+							where: { videoId: requestData.unread[0] },
+							data: { unread: true }
+						});
+						modifiedCount++;
+					} else {
+						const result = await prisma.video.updateMany({
+							where: { videoId: { in: requestData.unread } },
+							data: { unread: true }
+						});
+						modifiedCount += result.count;
+					}
+				}
+				res.status(200).send({ modifiedCount });
 				return;
 			}
-			const requestData = req.body;
-			let modifiedCount = 0;
-			if (requestData.read != undefined && requestData.read.length > 0) {
-				if (requestData.read.length == 1) {
-					await prisma.video.update({
-						where: { videoId: requestData.read[0] },
-						data: { unread: false }
-					});
-					modifiedCount++;
-				} else {
-					const result = await prisma.video.updateMany({
-						where: { videoId: { in: requestData.read } },
-						data: { unread: false }
-					});
-					modifiedCount += result.count;
-				}
-			}
-			if (requestData.unread != undefined && requestData.unread.length > 0) {
-				if (requestData.unread.length == 1) {
-					await prisma.video.update({
-						where: { videoId: requestData.unread[0] },
-						data: { unread: true }
-					});
-					modifiedCount++;
-				} else {
-					const result = await prisma.video.updateMany({
-						where: { videoId: { in: requestData.unread } },
-						data: { unread: true }
-					});
-					modifiedCount += result.count;
-				}
-			}
-			res.status(200).send({ modifiedCount });
-			return;
-		});
+		);
 
 		this.server.setErrorHandler((error, _request, reply) => {
 			console.error(error);
@@ -199,14 +204,17 @@ export class ContentServer {
 			reply.status(404).send();
 		});
 
-		this.server.listen({ port: config.port, host: config.listenHostname }, err => {
-						if (err) {
-				logUncaughtException(err);
-				return;
+		this.server.listen(
+			{ port: config.port, host: config.listenHostname },
+			(err) => {
+				if (err) {
+					logUncaughtException(err);
+					return;
+				}
+				console.log(
+					`Fastify Server successfully listening on port ${config.port}.`
+				);
 			}
-			console.log(
-				`Fastify Server successfully listening on port ${config.port}.`
-			);
-		});
+		);
 	}
 }
