@@ -18,7 +18,7 @@
 	},
 	"imports": {
 		"@biomejs/biome": "npm:@biomejs/biome@2.6.3",
-		"@oirnoir/util": "jsr:@oirnoir/util@0.0.58",
+		"@oirnoir/util": "jsr:@oirnoir/util@0.0.59",
 		"@prisma/adapter-pg": "npm:@prisma/adapter-pg@7.10.1",
 		"@prisma/client": "npm:@prisma/client@7.10.1",
 		"discord.js": "npm:discord.js@14.27.0",
