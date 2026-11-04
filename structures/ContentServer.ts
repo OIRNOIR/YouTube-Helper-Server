@@ -1,6 +1,4 @@
-import { Application } from "@oak/oak/application";
-import type { Request } from "@oak/oak/request";
-import { Router } from "@oak/oak/router";
+import Fastify from "fastify"
 import { isNumeric } from "@oirnoir/util";
 import FuzzySearch from "fuse.js";
 import type { ConfigFile } from "../constants.ts";
@@ -11,15 +9,20 @@ import {
 } from "../prisma/generated/prisma/client.ts";
 import type { VideoAvailability } from "../prisma/generated/prisma/enums.ts";
 
-function logRequest(request: Request, notFound = false) {
+function toURL(request: Fastify.FastifyRequest) {
+	return new URL(`${request.protocol}://${request.host}${request.url}`);
+}
+
+function logRequest(request: Fastify.FastifyRequest, notFound = false) {
+	const url = toURL(request);
 	console.log(
 		JSON.stringify({
 			time: Date.now(),
 			method: request.method,
-			url: request.url,
-			path: new URL(request.url).pathname,
+			url: url.toString(),
+			path: url.pathname,
 			parameters: "params" in request ? request.params : null,
-			connectingIp: request.headers.get("cf-connecting-ip"),
+			connectingIp: request.headers["cf-connecting-ip"],
 			notFound
 		})
 	);
@@ -27,31 +30,31 @@ function logRequest(request: Request, notFound = false) {
 
 export class ContentServer {
 	//private models: Models;
-	private server: Application;
+	private server: Fastify.FastifyInstance;
 	//private config: ConfigFile;
 
 	constructor(
 		prisma: PrismaClient,
 		config: ConfigFile,
-		_logUncaughtException: (arg0: unknown) => Promise<number>
+		logUncaughtException: (arg0: unknown) => Promise<number>
 	) {
-		const router = new Router();
-		router.get("/api/feed", async (ctx) => {
-			logRequest(ctx.request);
+		this.server = Fastify({logger: true})
+
+		this.server.get<{Querystring: {page?: string; limit?: string; unread?: string; type?: string; search?: string}}>("/api/feed", async (req, res) => {
+			logRequest(req);
 
 			if (
-				ctx.request.headers.get("Authorization") !==
+				req.headers.authorization !==
 				config.expectedServerAuthorization
 			) {
-				ctx.response.status = 401;
+				res.status(401).send();
 				return;
 			}
-			const url = new URL(ctx.request.url);
-			const pageParam = url.searchParams.get("page");
-			const limitParam = url.searchParams.get("limit");
-			const unreadParam = url.searchParams.get("unread");
-			const typesPre = url.searchParams.get("type")?.split(",") ?? [];
-			const searchQuery = url.searchParams.get("search");
+			const pageParam = req.query.page;
+			const limitParam = req.query.limit;
+			const unreadParam = req.query.unread;
+			const typesPre = req.query.type?.split(",") ?? [];
+			const searchQuery = req.query.search;
 			const types: VideoType[] = [];
 			for (const type of typesPre) {
 				if (type in VideoType) {
@@ -131,30 +134,25 @@ export class ContentServer {
 					releaseTimestampMS: d.releaseDate?.getTime() ?? null
 				};
 			});
-			ctx.response.headers.set("Content-Type", "application/json");
-			ctx.response.body = JSON.stringify({
+			res.status(200).send({
 				success: true,
 				documents: documents.map((d) =>
 					Object.fromEntries(Object.entries(d).filter((e) => !e[0].startsWith("_")))
 				)
-			});
-			ctx.response.status = 200;
+			})
 		});
 
-		router.patch("/api/read", async (ctx) => {
-			logRequest(ctx.request);
+		this.server.patch<{Body: {read?: string[]; unread?: string[]}}>("/api/read", async (req, res) => {
+			logRequest(req);
 
 			if (
-				ctx.request.headers.get("Authorization") !==
+				req.headers.authorization !==
 				config.expectedServerAuthorization
 			) {
-				ctx.response.status = 401;
+				res.status(401).send();
 				return;
 			}
-			const requestData = (await ctx.request.body.json()) as {
-				read?: string[];
-				unread?: string[];
-			};
+			const requestData = req.body;
 			let modifiedCount = 0;
 			if (requestData.read != undefined && requestData.read.length > 0) {
 				if (requestData.read.length == 1) {
@@ -186,16 +184,29 @@ export class ContentServer {
 					modifiedCount += result.count;
 				}
 			}
-			ctx.response.headers.set("Content-Type", "application/json");
-			ctx.response.body = JSON.stringify({ modifiedCount });
-			ctx.response.status = 200;
+			res.status(200).send({ modifiedCount });
 			return;
 		});
 
-		this.server = new Application();
-		this.server.use(router.routes());
-		this.server.use(router.allowedMethods());
+		this.server.setErrorHandler((error, _request, reply) => {
+			console.error(error);
+			logUncaughtException(error);
+			reply.status(500).send("Internal Server Error");
+		});
 
-		this.server.listen({ port: config.port, hostname: config.listenHostname });
+		this.server.setNotFoundHandler((req, reply) => {
+			logRequest(req, true);
+			reply.status(404).send();
+		});
+
+		this.server.listen({ port: config.port, host: config.listenHostname }, err => {
+						if (err) {
+				logUncaughtException(err);
+				return;
+			}
+			console.log(
+				`Fastify Server successfully listening on port ${config.port}.`
+			);
+		});
 	}
 }
