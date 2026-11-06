@@ -24,7 +24,7 @@ jobs:
                   submodules: true
 
             - name: Make deno.json changes
-              run: deno task workflow:denojsonfix
+              run: deno task workflow:denojsonfix --min-dep-age 0
               shell: bash
 
             - name: Approve Build Scripts
