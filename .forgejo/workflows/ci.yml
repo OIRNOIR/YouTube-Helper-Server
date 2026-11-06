@@ -23,7 +23,7 @@ jobs:
               with:
                   submodules: true
 
-            - name: Set automatic node modules directory
+            - name: Make deno.json changes
               run: deno task workflow:denojsonfix
               shell: bash
 
@@ -60,8 +60,12 @@ jobs:
               with:
                   submodules: true
 
+            - name: Make deno.json changes
+              run: deno task workflow:denojsonfix
+              shell: bash
+
             - name: Install dependencies
-              run: deno install --node-modules-dir=auto
+              run: deno install
               shell: bash
 
             - name: Run Check
