@@ -13,8 +13,7 @@
 		"typecheck": "deno check --node-modules-dir=auto",
 		"db:generate": "prisma generate --no-hints",
 		"db:migrate": "prisma migrate dev",
-		"db:deploy": "prisma migrate deploy",
-		"workflow:denojsonfix": "sed -i 's/\"name\": \"youtube-helper\"/\"name\": \"youtube-helper\",\\n\\t\"nodeModulesDir\": \"auto\",\\n\\t\"minimumDependencyAge\": \"PT1H\"/g' ./deno.json"
+		"db:deploy": "prisma migrate deploy"
 	},
 	"imports": {
 		"@biomejs/biome": "npm:@biomejs/biome@2.6.4",
