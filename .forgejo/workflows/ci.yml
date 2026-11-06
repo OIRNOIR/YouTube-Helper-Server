@@ -24,7 +24,8 @@ jobs:
                   submodules: true
 
             - name: Make deno.json changes
-              run: deno task workflow:denojsonfix --min-dep-age 0
+              #run: deno task workflow:denojsonfix
+              run: sed -i 's/\"name\": \"youtube-helper\"/\"name\": \"youtube-helper\",\\n\\t\"nodeModulesDir\": \"auto\",\\n\\t\"minimumDependencyAge\": \"PT1H\"/g' ./deno.json
               shell: bash
 
             - name: Approve Build Scripts
