@@ -25,7 +25,7 @@ jobs:
 
             - name: Make deno.json changes
               run: |
-                  sed -i "s/\"name\": \"youtube-helper\"/\"name\": \"youtube-helper\",\\n\\t\"nodeModulesDir\": \"auto\",\\n\\t\"minimumDependencyAge\": \"PT1H\"/g" ./deno.json
+                  sed -i "s/\"name\": \"youtube-helper\"/\"name\": \"youtube-helper\",\\n\\t\"nodeModulesDir\": \"auto\",\\n\\t\"minimumDependencyAge\": \"P7D\"/g" ./deno.json
               shell: bash
 
             - name: Approve Build Scripts
@@ -63,7 +63,7 @@ jobs:
 
             - name: Make deno.json changes
               run: |
-                  sed -i "s/\"name\": \"youtube-helper\"/\"name\": \"youtube-helper\",\\n\\t\"nodeModulesDir\": \"auto\",\\n\\t\"minimumDependencyAge\": \"PT1H\"/g" ./deno.json
+                  sed -i "s/\"name\": \"youtube-helper\"/\"name\": \"youtube-helper\",\\n\\t\"nodeModulesDir\": \"auto\",\\n\\t\"minimumDependencyAge\": \"P7D\"/g" ./deno.json
               shell: bash
 
             - name: Install dependencies
