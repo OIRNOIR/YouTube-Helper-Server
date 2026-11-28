@@ -19,29 +19,6 @@ export function execAsync(
 	});
 }
 
-export function shuffle<T>(array: T[]): T[] {
-	let currentIndex = array.length;
-	let randomIndex: number;
-
-	// While there remain elements to shuffle.
-	while (currentIndex != 0) {
-		// Pick a remaining element.
-		randomIndex = Math.floor(Math.random() * currentIndex);
-		currentIndex--;
-
-		// And swap it with the current element.
-		const temp = array[randomIndex];
-		const current = array[currentIndex];
-		if (temp == undefined || current == undefined) {
-			throw new Error("Stuff didn't work");
-		}
-		array[randomIndex] = current;
-		array[currentIndex] = temp;
-	}
-
-	return array;
-}
-
 export async function getSHA256Hash(input: string) {
 	const textAsBuffer = new TextEncoder().encode(input);
 	const hashBuffer = await subtleCrypto.digest("SHA-256", textAsBuffer);

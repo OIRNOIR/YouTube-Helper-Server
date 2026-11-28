@@ -3,7 +3,7 @@ import path from "node:path";
 import process from "node:process";
 import { setTimeout } from "node:timers";
 /* cspell: disable-next-line */
-import { msToShort } from "@oirnoir/util";
+import { msToShort, shuffle } from "@oirnoir/util";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { config as envConfig } from "dotenv";
 import {
@@ -16,7 +16,7 @@ import { PrismaClient } from "./prisma/generated/prisma/client.ts";
 import { Source } from "./Source.ts";
 import { Channels } from "./structures/Channels.ts";
 import { ContentServer } from "./structures/ContentServer.ts";
-import { execAsync, shuffle, splitDiscordMessage } from "./util.ts";
+import { execAsync, splitDiscordMessage } from "./util.ts";
 
 const __dirname = path.dirname(new URL(import.meta.url).pathname);
 
@@ -75,7 +75,7 @@ async function updateFeeds(): Promise<void> {
 			console.error(updateOut.error);
 			throw new Error("yt-dlp update error; check console for details");
 		}
-		shuffle(subscriptionsArr);
+		await shuffle(subscriptionsArr);
 		const cookiesPath = path.join(__dirname, "config", "cookies.txt");
 		console.log("Loading sources");
 		const sources: Source[] = [];
